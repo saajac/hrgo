@@ -22,6 +22,9 @@ class CreateEmployeesTable extends Migration
             $table->string('gender');
             $table->string('phone')->nullable();
             $table->string('address');
+            $table->string('grade');
+            $table->string('indice');
+            $table->string('echelle');
             $table->string('email');
             $table->string('password');
 

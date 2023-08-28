@@ -1236,7 +1236,8 @@ Route::group(['middleware' => ['verified']], function () {
     Route::get('import/employee/file', [EmployeeController::class, 'importFile'])->name('employee.file.import');
     Route::post('import/employee', [EmployeeController::class, 'import'])->name('employee.import');
     Route::get('export/employee', [EmployeeController::class, 'export'])->name('employee.export');
-
+    Route::get('report/export/loans', [ReportController::class, 'exportAllLoans'])->name('loans.export');
+    Route::get('report/export/deduction', [ReportController::class, 'exportAllDeductions'])->name('deduction.export');
     // Timesheet Import & Export
 
     Route::get('import/timesheet/file', [TimeSheetController::class, 'importFile'])->name('timesheet.file.import');

@@ -59,10 +59,7 @@
                                             data-feather="chevron-right"></i></span></a>
                                 <ul class="dash-submenu">
                                     <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Manage Report')): ?>
-                                        <li class="dash-item">
-                                            <a class="dash-link"
-                                                href="<?php echo e(route('report.income-expense')); ?>"><?php echo e(__('Income Vs Expense')); ?></a>
-                                        </li>
+                                        
 
                                         <li class="dash-item">
                                             <a class="dash-link"
@@ -283,65 +280,7 @@
             <?php endif; ?>
             <!--performance-->
 
-            <!--fianance-->
-            <?php if(Gate::check('Manage Account List') ||
-                    Gate::check('Manage Payee') ||
-                    Gate::check('Manage Payer') ||
-                    Gate::check('Manage Deposit') ||
-                    Gate::check('Manage Expense') ||
-                    Gate::check('Manage Transfer Balance')): ?>
-                <li class="dash-item dash-hasmenu">
-                    <a href="#!" class="dash-link"><span class="dash-micon"><i
-                                class="ti ti-wallet"></i></span><span
-                            class="dash-mtext"><?php echo e(__('Finance')); ?></span><span class="dash-arrow"><i
-                                data-feather="chevron-right"></i></span></a>
-                    <ul class="dash-submenu">
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Manage Account List')): ?>
-                            <li class="dash-item">
-                                <a class="dash-link"
-                                    href="<?php echo e(route('accountlist.index')); ?>"><?php echo e(__('Account List')); ?></a>
-                            </li>
-                        <?php endif; ?>
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('View Balance Account List')): ?>
-                            <li class="dash-item">
-                                <a class="dash-link"
-                                    href="<?php echo e(route('accountbalance')); ?>"><?php echo e(__('Account Balance')); ?></a>
-                            </li>
-                        <?php endif; ?>
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Manage Payee')): ?>
-                            <li class="dash-item">
-                                <a class="dash-link" href="<?php echo e(route('payees.index')); ?>"><?php echo e(__('Payees')); ?></a>
-                            </li>
-                        <?php endif; ?>
-
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Manage Payer')): ?>
-                            <li class="dash-item">
-                                <a class="dash-link" href="<?php echo e(route('payer.index')); ?>"><?php echo e(__('Payers')); ?></a>
-                            </li>
-                        <?php endif; ?>
-
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Manage Deposit')): ?>
-                            <li class="dash-item">
-                                <a class="dash-link" href="<?php echo e(route('deposit.index')); ?>"><?php echo e(__('Deposit')); ?></a>
-                            </li>
-                        <?php endif; ?>
-
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Manage Expense')): ?>
-                            <li class="dash-item">
-                                <a class="dash-link" href="<?php echo e(route('expense.index')); ?>"><?php echo e(__('Expense')); ?></a>
-                            </li>
-                        <?php endif; ?>
-
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Manage Transfer Balance')): ?>
-                            <li class="dash-item">
-                                <a class="dash-link"
-                                    href="<?php echo e(route('transferbalance.index')); ?>"><?php echo e(__('Transfer Balance')); ?></a>
-                            </li>
-                        <?php endif; ?>
-                    </ul>
-                </li>
-            <?php endif; ?>
-            <!-- fianance-->
+            
 
             <!--trainning-->
             <?php if(Gate::check('Manage Trainer') || Gate::check('Manage Training')): ?>
@@ -516,44 +455,9 @@
                 </li>
             <?php endif; ?>
 
-            <!-- Event-->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Manage Event')): ?>
-                <li class="dash-item">
-                    <a href="<?php echo e(route('event.index')); ?>" class="dash-link"><span class="dash-micon"><i
-                                class="ti ti-calendar-event"></i></span><span
-                            class="dash-mtext"><?php echo e(__('Event')); ?></span></a>
-                </li>
-            <?php endif; ?>
+            
 
-
-            <!--meeting-->
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('Manage Meeting')): ?>
-                <li
-                    class="dash-item <?php echo e(Request::segment(1) == 'meeting' || Request::segment(2) == 'meeting' ? 'active' : ''); ?>">
-                    <a href="<?php echo e(route('meeting.index')); ?>" class="dash-link"><span class="dash-micon"><i
-                                class="ti ti-calendar-time"></i></span><span
-                            class="dash-mtext"><?php echo e(__('Meeting')); ?></span></a>
-                </li>
-            <?php endif; ?>
-
-
-            <!-- Zoom meeting-->
-            <?php if(\Auth::user()->type != 'super admin'): ?>
-                <li class="dash-item <?php echo e(Request::segment(1) == 'zoommeeting' ? 'active' : ''); ?>">
-                    <a href="<?php echo e(route('zoom-meeting.index')); ?>" class="dash-link"><span class="dash-micon"><i
-                                class="ti ti-video"></i></span><span
-                            class="dash-mtext"><?php echo e(__('Zoom Meeting')); ?></span></a>
-                </li>
-            <?php endif; ?>
-
-            <!-- assets-->
-            <?php if(Gate::check('Manage Assets')): ?>
-                <li class="dash-item">
-                    <a href="<?php echo e(route('account-assets.index')); ?>" class="dash-link"><span class="dash-micon"><i
-                                class="ti ti-medical-cross"></i></span><span
-                            class="dash-mtext"><?php echo e(__('Assets')); ?></span></a>
-                </li>
-            <?php endif; ?>
+            
 
 
             <!-- document-->
@@ -585,14 +489,7 @@
                             class="dash-mtext"><?php echo e(__('Company Policy')); ?></span></a>
                 </li>
             <?php endif; ?>
-            <!--chats-->
-            <?php if(\Auth::user()->type != 'super admin'): ?>
-                <li class="dash-item <?php echo e(Request::segment(1) == 'chats' ? 'active' : ''); ?>">
-                    <a href="<?php echo e(url('chats')); ?>" class="dash-link"><span class="dash-micon"><i
-                                class="ti ti-messages"></i></span><span
-                            class="dash-mtext"><?php echo e(__('Messenger')); ?></span></a>
-                </li>
-            <?php endif; ?>
+            
 
             <?php if(\Auth::user()->type == 'company'): ?>
                 <li class="dash-item <?php echo e(Request::route()->getName() == 'notification-templates.update' || Request::segment(1) == 'notification-templates' ? 'active' : ''); ?>">

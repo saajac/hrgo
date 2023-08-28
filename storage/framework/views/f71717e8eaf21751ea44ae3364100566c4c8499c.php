@@ -105,6 +105,21 @@
 
                                     </div>
                                     <div class="form-group col-md-6">
+                                        <?php echo Form::label('grade', __('Grade'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
+                                        <?php echo Form::text('grade', $employee->grade, ['class' => 'form-control', 'required' => 'required']); ?>
+
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <?php echo Form::label('echelle', __('Echelle'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
+                                        <?php echo Form::text('echelle', $employee->echelle, ['class' => 'form-control', 'required' => 'required']); ?>
+
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <?php echo Form::label('indice', __('Indice'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
+                                        <?php echo Form::text('indice', $employee->indice, ['class' => 'form-control', 'required' => 'required']); ?>
+
+                                    </div>
+                                    <div class="form-group col-md-6">
                                         <?php echo e(Form::label('branch_id', __('Branch'), ['class' => 'form-label'])); ?><span class="text-danger pl-1">*</span>
                                         <?php echo e(Form::select('branch_id', $branches, null, ['class' => 'form-control ', 'required' => 'required', 'placeholder' => 'Select Branch'])); ?>
 

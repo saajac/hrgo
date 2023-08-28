@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Exports\accountstatementExport;
+use App\Exports\DeductionExport;
 use App\Exports\LeaveReportExport;
+use App\Exports\LoansExport;
 use App\Exports\PayrollExport;
 use App\Exports\TimesheetReportExport;
 use App\Models\AccountList;
@@ -12,14 +14,22 @@ use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Deposit;
 use App\Models\Employee;
+use App\Models\DeductionOption;
 use App\Models\Expense;
 use App\Models\Leave;
 use App\Models\LeaveType;
+use App\Models\LoanOption;
 use App\Models\PaySlip;
 use App\Models\TimeSheet;
 use App\Models\SaturationDeduction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use function Symfony\Component\Console\Input\isArray;
+use function Symfony\Component\String\length;
+
+
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
@@ -376,6 +386,73 @@ class ReportController extends Controller
         }
     }
 
+    static public function exportLoans() {
+        $type = $_SESSION['type'];
+        $month = $_SESSION['month'];
+        if ($type == 'monthly' && !empty($month)) {
+            $loandeductions = DB::SELECT("SELECT employee_id AS eid, (SELECT loan FROM pay_slips p2 WHERE p2.employee_id = pay_slips.employee_id) AS loan_array FROM pay_slips WHERE salary_month = '".$month."'");
+            $all_loan = [];
+            if (isset($loandeductions)) {
+                foreach ($loandeductions as $loandeduction) {
+                    $loans = json_decode($loandeduction->loan_array);
+                    for ($i = 0; $i < count($loans); $i++) {
+                        /*$loans[$i]->loan_option;*/
+                        $employee = Employee::select('name', 'matricule')->where('id', $loans[$i]->employee_id)->first();
+                        $loan_options = LoanOption::select('name')->where('id', $loans[$i]->loan_option)->first();
+                        array_push($all_loan, [$employee->name, $employee->matricule, $loan_options->name, $loans[$i]->amount]);
+                    }
+                    /* Log::info(json_decode($loandeduction->loan_array));*/
+                }
+                $_SESSION['type'] = null;
+                $_SESSION['month'] = null;
+                return $all_loan;
+            }
+        }
+    }
+
+    public function exportAllLoans(Request $request)
+    {
+        /*die(self::exportLoans($request->type, $request->month));*/
+        $_SESSION['type'] = !isset($request->type) ? 'monthly' : $request->type;
+        $_SESSION['month'] = !isset($request->month) ? date('Y-m'): $request->month;
+        $name = 'loans_' . date('Y-m-d i:h:s');
+        $data = Excel::download(new LoansExport(), $name.'.xlsx');
+
+        return $data;
+    }
+
+    static public function exportDeductions() {
+        $type = $_SESSION['type'];
+        $month = $_SESSION['month'];
+        if ($type == 'monthly' && !empty($month)) {
+            $deductions = DB::SELECT("SELECT employee_id AS eid, (SELECT saturation_deduction FROM pay_slips p2 WHERE p2.employee_id = pay_slips.employee_id) AS deduction_array FROM pay_slips WHERE salary_month = '".$month."'");
+            $all_deduction = [];
+            if (isset($deductions)) {
+                foreach ($deductions as $deduction) {
+                    $deductions = json_decode($deduction->deduction_array);
+                    for ($i = 0; $i < count($deductions); $i++) {
+                        /*$loans[$i]->loan_option;*/
+                        $employee = Employee::select('name', 'matricule')->where('id', $deductions[$i]->employee_id)->first();
+                        $deduction_options = DeductionOption::select('name')->where('id', $deductions[$i]->deduction_option)->first();
+                        array_push($all_deduction, [$employee->name, $employee->matricule, $deduction_options->name, $deductions[$i]->amount]);
+                    }
+                    /* Log::info(json_decode($loandeduction->loan_array));*/
+                }
+                $_SESSION['type'] = null;
+                $_SESSION['month'] = null;
+                return $all_deduction;
+            }
+        }
+    }
+    public function exportAllDeductions(Request $request)
+    {
+        $_SESSION['type'] = !isset($request->type) ? 'monthly' : $request->type;
+        $_SESSION['month'] = !isset($request->month) ? date('Y-m'): $request->month;
+        $name = 'deduction_' . date('Y-m-d i:h:s');
+        $data = Excel::download(new DeductionExport(), $name.'.xlsx');
+
+        return $data;
+    }
     public function payroll(Request $request)
     {
         if (\Auth::user()->can('Manage Report')) {
@@ -390,18 +467,24 @@ class ReportController extends Controller
             $filterYear['type']       = __('Monthly');
 
             $payslips = PaySlip::select('pay_slips.*', 'employees.name')->leftjoin('employees', 'pay_slips.employee_id', '=', 'employees.id')->where('pay_slips.created_by', \Auth::user()->creatorId());
-            $alldeductions= [];
+
+
+
             if ($request->type == 'monthly' && !empty($request->month)) {
-                //$alldeductions = SaturationDeduction::select('saturation_deductions.*','deduction_options.name')->join('deduction_options', 'saturation_deductions.deduction_option', '=', 'deduction_options.id')->where('DATE_FORMAT(saturation_deductions.updated_at, "%Y-%m")', '=', $request->month)->groupBy('deduction_option')->selectRaw('sum(amount) as total')->get();
-                $alldeductions = DB::table('saturation_deductions')
-                    ->selectRaw('saturation_deductions.*,deduction_options.name, DATE_FORMAT(saturation_deductions.created_at, "%Y-%m"), SUM(amount) as total')
-                    ->join('deduction_options', 'saturation_deductions.deduction_option', '=', 'deduction_options.id')
-                    ->whereRaw('DATE_FORMAT(saturation_deductions.created_at, "%Y-%m") = ?', [$request->month])
-                    ->groupBy('deduction_option')
-                    ->get();
-
+                $loandeductions= DB::SELECT("SELECT employee_id AS eid, (SELECT loan FROM pay_slips p2 WHERE p2.employee_id = pay_slips.employee_id) AS loan_array FROM pay_slips WHERE salary_month = $request->month");
+                $all_loan = [];
+                if(isset($loandeductions)){  foreach ($loandeductions as $loandeduction){
+                    $loans = json_decode($loandeduction->loan_array);
+                    for ($i = 0; $i < count($loans); $i++) {
+                        /*$loans[$i]->loan_option;*/
+                        $employee = Employee::select('name', 'matricule')->where('id', $loans[$i]->employee_id)->first();
+                        $loan_options = LoanOption::select('name')->where('id', $loans[$i]->loan_option)->first();
+                        Log::info([$employee->name, $employee->matricule, $loan_options->name, $loans[$i]->amount]);
+                    }
+                    /* Log::info(json_decode($loandeduction->loan_array));*/
+                    Log::info($all_loan);
+                }}
                 $payslips->where('salary_month', $request->month);
-
                 $filterYear['dateYearRange'] = date('M-Y', strtotime($request->month));
                 $filterYear['type']          = __('Monthly');
             } elseif (!isset($request->type)) {
@@ -478,7 +561,6 @@ class ReportController extends Controller
                     $totalOverTime += ($rate * $hours) * $days;
                 }
             }
-          //  $alldeductions = SaturationDeduction::select('saturation_deductions.*', 'deduction_options.name')->join('deduction_options', 'saturation_deductions.deduction_option', '=', 'deduction_options.id')->groupBy('deduction_option')->selectRaw('sum(amount) as total')->get();
 
             $filterData['totalBasicSalary']         = $totalBasicSalary;
             $filterData['totalNetSalary']           = $totalNetSalary;
@@ -496,8 +578,10 @@ class ReportController extends Controller
             $filterYear['starting_year'] = $starting_year;
             $filterYear['ending_year']   = $ending_year;
 
-            return view('report.payroll', compact('payslips', 'filterData', 'alldeductions','branch', 'department', 'filterYear'));
+            return view('report.payroll', compact('payslips', 'filterData','branch', 'department', 'filterYear'));
         } else {
+
+
             return redirect()->back()->with('error', __('Permission denied.'));
         }
     }

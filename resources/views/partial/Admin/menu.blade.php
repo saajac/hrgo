@@ -60,10 +60,10 @@
                                             data-feather="chevron-right"></i></span></a>
                                 <ul class="dash-submenu">
                                     @can('Manage Report')
-                                        <li class="dash-item">
+                                        {{--<li class="dash-item">
                                             <a class="dash-link"
                                                 href="{{ route('report.income-expense') }}">{{ __('Income Vs Expense') }}</a>
-                                        </li>
+                                        </li>--}}
 
                                         <li class="dash-item">
                                             <a class="dash-link"
@@ -288,7 +288,7 @@
             @endif
             <!--performance-->
 
-            <!--fianance-->
+            {{--<!--fianance-->
             @if (Gate::check('Manage Account List') ||
                     Gate::check('Manage Payee') ||
                     Gate::check('Manage Payer') ||
@@ -346,7 +346,7 @@
                     </ul>
                 </li>
             @endif
-            <!-- fianance-->
+            <!-- fianance-->--}}
 
             <!--trainning-->
             @if (Gate::check('Manage Trainer') || Gate::check('Manage Training'))
@@ -521,7 +521,7 @@
                 </li>
             @endcan
 
-            <!-- Event-->
+            {{--<!-- Event-->
             @can('Manage Event')
                 <li class="dash-item">
                     <a href="{{ route('event.index') }}" class="dash-link"><span class="dash-micon"><i
@@ -549,16 +549,16 @@
                                 class="ti ti-video"></i></span><span
                             class="dash-mtext">{{ __('Zoom Meeting') }}</span></a>
                 </li>
-            @endif
+            @endif--}}
 
-            <!-- assets-->
+            {{--<!-- assets-->
             @if (Gate::check('Manage Assets'))
                 <li class="dash-item">
                     <a href="{{ route('account-assets.index') }}" class="dash-link"><span class="dash-micon"><i
                                 class="ti ti-medical-cross"></i></span><span
                             class="dash-mtext">{{ __('Assets') }}</span></a>
                 </li>
-            @endcan
+            @endcan--}}
 
 
             <!-- document-->
@@ -590,14 +590,14 @@
                             class="dash-mtext">{{ __('Company Policy') }}</span></a>
                 </li>
             @endcan
-            <!--chats-->
+            {{--<!--chats-->
             @if (\Auth::user()->type != 'super admin')
                 <li class="dash-item {{ Request::segment(1) == 'chats' ? 'active' : '' }}">
                     <a href="{{ url('chats') }}" class="dash-link"><span class="dash-micon"><i
                                 class="ti ti-messages"></i></span><span
                             class="dash-mtext">{{ __('Messenger') }}</span></a>
                 </li>
-            @endif
+            @endif--}}
 
             @if (\Auth::user()->type == 'company')
                 <li class="dash-item {{ Request::route()->getName() == 'notification-templates.update' || Request::segment(1) == 'notification-templates' ? 'active' : '' }}">

@@ -95,6 +95,18 @@
                                         {!! Form::text('matricule', $employee->matricule, ['class' => 'form-control', 'required' => 'required']) !!}
                                     </div>
                                     <div class="form-group col-md-6">
+                                        {!! Form::label('grade', __('Grade'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
+                                        {!! Form::text('grade', $employee->grade, ['class' => 'form-control', 'required' => 'required']) !!}
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        {!! Form::label('echelle', __('Echelle'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
+                                        {!! Form::text('echelle', $employee->echelle, ['class' => 'form-control', 'required' => 'required']) !!}
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        {!! Form::label('indice', __('Indice'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
+                                        {!! Form::text('indice', $employee->indice, ['class' => 'form-control', 'required' => 'required']) !!}
+                                    </div>
+                                    <div class="form-group col-md-6">
                                         {{ Form::label('branch_id', __('Branch'), ['class' => 'form-label']) }}<span class="text-danger pl-1">*</span>
                                         {{ Form::select('branch_id', $branches, null, ['class' => 'form-control ', 'required' => 'required', 'placeholder' => 'Select Branch']) }}
                                     </div>

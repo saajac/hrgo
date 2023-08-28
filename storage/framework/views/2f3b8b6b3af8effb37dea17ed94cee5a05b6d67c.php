@@ -45,7 +45,18 @@
 
         </div>
 
-        
+        <div class="form-group col-md-6">
+            <?php echo e(Form::label('start_date', __('Start Date'), ['class' => 'col-form-label'])); ?>
+
+            <?php echo e(Form::text('start_date', null, ['class' => 'form-control d_week','required' => 'required','autocomplete'=>'off'])); ?>
+
+        </div>
+        <div class="form-group col-md-6">
+            <?php echo e(Form::label('end_date', __('End Date'), ['class' => 'col-form-label'])); ?>
+
+            <?php echo e(Form::text('end_date', null, ['class' => 'form-control d_week', 'required' => 'required','autocomplete'=>'off'])); ?>
+
+        </div>
         <div class="form-group">
             <?php echo e(Form::label('reason', __('Reason'), ['class' => 'col-form-label'])); ?>
 

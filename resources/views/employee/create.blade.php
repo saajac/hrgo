@@ -71,7 +71,6 @@
                                     {!! Form::label('email', __('Email'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
                                     {!! Form::email('email', old('email'), [
                                         'class' => 'form-control',
-                                        'required' => 'required',
                                         'placeholder' => 'Enter employee Email',
                                     ]) !!}
                                 </div>
@@ -79,7 +78,6 @@
                                     {!! Form::label('password', __('Password'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
                                     {!! Form::password('password', [
                                         'class' => 'form-control',
-                                        'required' => 'required',
                                         'placeholder' => 'Enter employee Password',
                                     ]) !!}
                                 </div>
@@ -108,12 +106,39 @@
                                     {!! Form::text('employee_id', $employeesId, ['class' => 'form-control', 'disabled' => 'disabled']) !!}
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group col-md-6">
                                     {!! Form::label('matricule', __('Matricule'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
                                     {!! Form::text('matricule', old('matricule'), [
                                         'class' => 'form-control',
                                         'required' => 'required',
                                         'placeholder' => 'Saisir le matricule',
+                                    ]) !!}
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    {!! Form::label('grade', __('Grade'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
+                                    {!! Form::text('grade', old('grade'), [
+                                        'class' => 'form-control',
+                                        'required' => 'required',
+                                        'placeholder' => 'Saisir le grade',
+                                    ]) !!}
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    {!! Form::label('indice', __('Indice'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
+                                    {!! Form::text('indice', old('indice'), [
+                                        'class' => 'form-control',
+                                        'required' => 'required',
+                                        'placeholder' => 'Saisir l\'indice',
+                                    ]) !!}
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    {!! Form::label('echelle', __('Echelle'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
+                                    {!! Form::text('echelle', old('echelle'), [
+                                        'class' => 'form-control',
+                                        'required' => 'required',
+                                        'placeholder' => 'Saisir l\'echelle',
                                     ]) !!}
                                 </div>
 

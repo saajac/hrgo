@@ -250,6 +250,7 @@
                 <div class="card p-4 mb-4">
                     <h6 class="report-text gray-text mb-0"><?php echo e(__('Report')); ?> :</h6>
                     <h7 class="report-text mb-0"><?php echo e($filterYear['type'] . ' ' . __('Payroll Summary')); ?></h7>
+
                 </div>
             </div>
             <?php if($filterYear['branch'] != 'All'): ?>
@@ -292,65 +293,88 @@
             </div>
             <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
                 <div class="card p-4 mb-4">
-                    <h6 class="report-text gray-text mb-0"><?php echo e(__('Total Allowance')); ?> :</h6>
-                    <h7 class="report-text mb-0"><?php echo e(\Auth::user()->priceFormat($filterData['totalAllowance'])); ?></h7>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
-                <div class="card p-4 mb-4">
-                    <h6 class="report-text gray-text mb-0"><?php echo e(__('Total Commission')); ?> :</h6>
-                    <h7 class="report-text mb-0"><?php echo e(\Auth::user()->priceFormat($filterData['totalCommision'])); ?></h7>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
-                <div class="card p-4 mb-4">
-                    <h6 class="report-text gray-text mb-0"><?php echo e(__('Total Loan')); ?> :</h6>
-                    <h7 class="report-text mb-0"><?php echo e(\Auth::user()->priceFormat($filterData['totalLoan'])); ?></h7>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
-                <div class="card p-4 mb-4">
-                    <h6 class="report-text gray-text mb-0"><?php echo e(__('Total Saturation Deduction')); ?> :</h6>
-                    <h7 class="report-text mb-0"><?php echo e(\Auth::user()->priceFormat($filterData['totalSaturationDeduction'])); ?>
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div>
+                            <h6 class="report-text gray-text mb-0"><?php echo e(__('Total Allowance')); ?> :</h6>
+                            <h7 class="report-text mb-0"><?php echo e(\Auth::user()->priceFormat($filterData['totalAllowance'])); ?></h7>
+                        </div>
+                        <a href="export/loans?type=<?php echo e(isset($_GET['type'])? $_GET['type'] : ''); ?>&month=<?php echo e(isset($_GET['month'])? $_GET['month'] : ''); ?>" class="btn btn-sm btn-primary"  data-bs-toggle="tooltip"
+                           title="<?php echo e(__('Download')); ?>" data-original-title="<?php echo e(__('Download')); ?>" style="margin-right: 5px;">
+                            <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
+                        </a>
+                    </div>
 
-                    </h7>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
                 <div class="card p-4 mb-4">
-                    <h6 class="report-text gray-text mb-0"><?php echo e(__('Total Other Payment')); ?> :</h6>
-                    <h7 class="report-text mb-0"><?php echo e(\Auth::user()->priceFormat($filterData['totalOtherPayment'])); ?></h7>
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div>
+                            <h6 class="report-text gray-text mb-0"><?php echo e(__('Total Commission')); ?> :</h6>
+                            <h7 class="report-text mb-0"><?php echo e(\Auth::user()->priceFormat($filterData['totalCommision'])); ?></h7>
+                        </div>
+                        <a href="export/loans?type=<?php echo e(isset($_GET['type'])? $_GET['type'] : ''); ?>&month=<?php echo e(isset($_GET['month'])); ?>" class="btn btn-sm btn-primary"  data-bs-toggle="tooltip"
+                           title="<?php echo e(__('Download')); ?>" data-original-title="<?php echo e(__('Download')); ?>" style="margin-right: 5px;">
+                            <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
                 <div class="card p-4 mb-4">
-                    <h6 class="report-text gray-text mb-0"><?php echo e(__('Total Overtime')); ?> :</h6>
-                    <h7 class="report-text mb-0"><?php echo e(\Auth::user()->priceFormat($filterData['totalOverTime'])); ?></h7>
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div>
+                            <h6 class="report-text gray-text mb-0"><?php echo e(__('Total Loan')); ?> :</h6>
+                            <h7 class="report-text mb-0"><?php echo e(\Auth::user()->priceFormat($filterData['totalLoan'])); ?> </h7>
+                        </div>
+                        <a href="export/loans?type=<?php echo e(isset($_GET['type'])? $_GET['type'] : ''); ?>&month=<?php echo e(isset($_GET['month'])? $_GET['month'] : ''); ?>" class="btn btn-sm btn-primary"  data-bs-toggle="tooltip"
+                           title="<?php echo e(__('Download')); ?>" data-original-title="<?php echo e(__('Download')); ?>" style="margin-right: 5px;">
+                            <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <div class="card">
-                <div class="card-body table-border-style">
-                    <div class="table-responsive py-4">
-                        <table class="table datatable mb-0" id="report-dataTable">
-                            <thead>
-                            <tr>
-                                <th><?php echo e(__('deduction options')); ?></th>
-                                <th><?php echo e(__('amount')); ?></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php $__currentLoopData = $alldeductions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $alldeduction): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <tr>
-                                    <td> <?php echo e(!empty($alldeduction)? $alldeduction->name : ''); ?></td>
-                                    <td><?php echo e(!empty($alldeduction)? $alldeduction->amount : ''); ?></td>
-                                </tr>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            </tbody>
-                        </table>
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
+                <div class="card p-4 mb-4">
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div>
+                            <h6 class="report-text gray-text mb-0"><?php echo e(__('Total Saturation Deduction')); ?> :</h6>
+                            <h7 class="report-text mb-0"><?php echo e(\Auth::user()->priceFormat($filterData['totalSaturationDeduction'])); ?>
+
+                            </h7>
+                        </div>
+                        <a href="export/deduction?type=<?php echo e(isset($_GET['type'])? $_GET['type'] : ''); ?>&month=<?php echo e(isset($_GET['month'])? $_GET['month'] : ''); ?>" class="btn btn-sm btn-primary"  data-bs-toggle="tooltip"
+                           title="<?php echo e(__('Download')); ?>" data-original-title="<?php echo e(__('Download')); ?>" style="margin-right: 5px;">
+                            <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
+                <div class="card p-4 mb-4">
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div>
+                            <h6 class="report-text gray-text mb-0"><?php echo e(__('Total Other Payment')); ?> :</h6>
+                            <h7 class="report-text mb-0"><?php echo e(\Auth::user()->priceFormat($filterData['totalOtherPayment'])); ?></h7>
+                        </div>
+                        <a href="export/loans?type=<?php echo e(isset($_GET['type'])? $_GET['type'] : ''); ?>&month=<?php echo e(isset($_GET['month'])? $_GET['month'] : ''); ?>" class="btn btn-sm btn-primary"  data-bs-toggle="tooltip"
+                           title="<?php echo e(__('Download')); ?>" data-original-title="<?php echo e(__('Download')); ?>" style="margin-right: 5px;">
+                            <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
+                <div class="card p-4 mb-4">
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div>
+                            <h6 class="report-text gray-text mb-0"><?php echo e(__('Total Overtime')); ?> :</h6>
+                            <h7 class="report-text mb-0"><?php echo e(\Auth::user()->priceFormat($filterData['totalOverTime'])); ?></h7>
+                        </div>
+                        <a href="export/loans?type=<?php echo e(isset($_GET['type'])? $_GET['type'] : ''); ?>&month=<?php echo e(isset($_GET['month'])? $_GET['month'] : ''); ?>" class="btn btn-sm btn-primary"  data-bs-toggle="tooltip"
+                           title="<?php echo e(__('Download')); ?>" data-original-title="<?php echo e(__('Download')); ?>" style="margin-right: 5px;">
+                            <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
+                        </a>
                     </div>
                 </div>
             </div>

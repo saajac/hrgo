@@ -242,6 +242,7 @@
                 <div class="card p-4 mb-4">
                     <h6 class="report-text gray-text mb-0">{{ __('Report') }} :</h6>
                     <h7 class="report-text mb-0">{{ $filterYear['type'] . ' ' . __('Payroll Summary') }}</h7>
+
                 </div>
             </div>
             @if ($filterYear['branch'] != 'All')
@@ -284,64 +285,87 @@
             </div>
             <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
                 <div class="card p-4 mb-4">
-                    <h6 class="report-text gray-text mb-0">{{ __('Total Allowance') }} :</h6>
-                    <h7 class="report-text mb-0">{{ \Auth::user()->priceFormat($filterData['totalAllowance']) }}</h7>
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div>
+                            <h6 class="report-text gray-text mb-0">{{ __('Total Allowance') }} :</h6>
+                            <h7 class="report-text mb-0">{{ \Auth::user()->priceFormat($filterData['totalAllowance']) }}</h7>
+                        </div>
+                        <a href="export/loans?type={{ isset($_GET['type'])? $_GET['type'] : '' }}&month={{ isset($_GET['month'])? $_GET['month'] : '' }}" class="btn btn-sm btn-primary"  data-bs-toggle="tooltip"
+                           title="{{ __('Download') }}" data-original-title="{{ __('Download') }}" style="margin-right: 5px;">
+                            <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
+                        </a>
+                    </div>
+
                 </div>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
                 <div class="card p-4 mb-4">
-                    <h6 class="report-text gray-text mb-0">{{ __('Total Commission') }} :</h6>
-                    <h7 class="report-text mb-0">{{ \Auth::user()->priceFormat($filterData['totalCommision']) }}</h7>
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div>
+                            <h6 class="report-text gray-text mb-0">{{ __('Total Commission') }} :</h6>
+                            <h7 class="report-text mb-0">{{ \Auth::user()->priceFormat($filterData['totalCommision']) }}</h7>
+                        </div>
+                        <a href="export/loans?type={{ isset($_GET['type'])? $_GET['type'] : ''  }}&month={{ isset($_GET['month']) }}" class="btn btn-sm btn-primary"  data-bs-toggle="tooltip"
+                           title="{{ __('Download') }}" data-original-title="{{ __('Download') }}" style="margin-right: 5px;">
+                            <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
                 <div class="card p-4 mb-4">
-                    <h6 class="report-text gray-text mb-0">{{ __('Total Loan') }} :</h6>
-                    <h7 class="report-text mb-0">{{ \Auth::user()->priceFormat($filterData['totalLoan']) }}</h7>
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div>
+                            <h6 class="report-text gray-text mb-0">{{ __('Total Loan') }} :</h6>
+                            <h7 class="report-text mb-0">{{ \Auth::user()->priceFormat($filterData['totalLoan']) }} </h7>
+                        </div>
+                        <a href="export/loans?type={{ isset($_GET['type'])? $_GET['type'] : '' }}&month={{ isset($_GET['month'])? $_GET['month'] : '' }}" class="btn btn-sm btn-primary"  data-bs-toggle="tooltip"
+                           title="{{ __('Download') }}" data-original-title="{{ __('Download') }}" style="margin-right: 5px;">
+                            <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
                 <div class="card p-4 mb-4">
-                    <h6 class="report-text gray-text mb-0">{{ __('Total Saturation Deduction') }} :</h6>
-                    <h7 class="report-text mb-0">{{ \Auth::user()->priceFormat($filterData['totalSaturationDeduction']) }}
-                    </h7>
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div>
+                            <h6 class="report-text gray-text mb-0">{{ __('Total Saturation Deduction') }} :</h6>
+                            <h7 class="report-text mb-0">{{ \Auth::user()->priceFormat($filterData['totalSaturationDeduction']) }}
+                            </h7>
+                        </div>
+                        <a href="export/deduction?type={{ isset($_GET['type'])? $_GET['type'] : '' }}&month={{ isset($_GET['month'])? $_GET['month'] : '' }}" class="btn btn-sm btn-primary"  data-bs-toggle="tooltip"
+                           title="{{ __('Download') }}" data-original-title="{{ __('Download') }}" style="margin-right: 5px;">
+                            <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
                 <div class="card p-4 mb-4">
-                    <h6 class="report-text gray-text mb-0">{{ __('Total Other Payment') }} :</h6>
-                    <h7 class="report-text mb-0">{{ \Auth::user()->priceFormat($filterData['totalOtherPayment']) }}</h7>
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div>
+                            <h6 class="report-text gray-text mb-0">{{ __('Total Other Payment') }} :</h6>
+                            <h7 class="report-text mb-0">{{ \Auth::user()->priceFormat($filterData['totalOtherPayment']) }}</h7>
+                        </div>
+                        <a href="export/loans?type={{ isset($_GET['type'])? $_GET['type'] : '' }}&month={{ isset($_GET['month'])? $_GET['month'] : '' }}" class="btn btn-sm btn-primary"  data-bs-toggle="tooltip"
+                           title="{{ __('Download') }}" data-original-title="{{ __('Download') }}" style="margin-right: 5px;">
+                            <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
                 <div class="card p-4 mb-4">
-                    <h6 class="report-text gray-text mb-0">{{ __('Total Overtime') }} :</h6>
-                    <h7 class="report-text mb-0">{{ \Auth::user()->priceFormat($filterData['totalOverTime']) }}</h7>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <div class="card">
-                <div class="card-body table-border-style">
-                    <div class="table-responsive py-4">
-                        <table class="table datatable mb-0" id="report-dataTable">
-                            <thead>
-                            <tr>
-                                <th>{{ __('deduction options') }}</th>
-                                <th>{{ __('amount') }}</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach ($alldeductions as $alldeduction)
-                                <tr>
-                                    <td> {{ !empty($alldeduction)? $alldeduction->name : '' }}</td>
-                                    <td>{{ !empty($alldeduction)? $alldeduction->amount : '' }}</td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div>
+                            <h6 class="report-text gray-text mb-0">{{ __('Total Overtime') }} :</h6>
+                            <h7 class="report-text mb-0">{{ \Auth::user()->priceFormat($filterData['totalOverTime']) }}</h7>
+                        </div>
+                        <a href="export/loans?type={{ isset($_GET['type'])? $_GET['type'] : '' }}&month={{ isset($_GET['month'])? $_GET['month'] : '' }}" class="btn btn-sm btn-primary"  data-bs-toggle="tooltip"
+                           title="{{ __('Download') }}" data-original-title="{{ __('Download') }}" style="margin-right: 5px;">
+                            <span class="btn-inner--icon"><i class="ti ti-download"></i></span>
+                        </a>
                     </div>
                 </div>
             </div>

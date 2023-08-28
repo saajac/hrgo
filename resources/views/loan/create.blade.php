@@ -34,14 +34,14 @@
             {{ Form::number('amount', null, ['class' => 'form-control ', 'required' => 'required', 'step' => '0.01','placeholder'=>'Enter Amount']) }}
         </div>
 
-        {{-- <div class="form-group col-md-6">
+        <div class="form-group col-md-6">
             {{ Form::label('start_date', __('Start Date'), ['class' => 'col-form-label']) }}
             {{ Form::text('start_date', null, ['class' => 'form-control d_week','required' => 'required','autocomplete'=>'off']) }}
         </div>
         <div class="form-group col-md-6">
             {{ Form::label('end_date', __('End Date'), ['class' => 'col-form-label']) }}
             {{ Form::text('end_date', null, ['class' => 'form-control d_week', 'required' => 'required','autocomplete'=>'off']) }}
-        </div> --}}
+        </div>
         <div class="form-group">
             {{ Form::label('reason', __('Reason'), ['class' => 'col-form-label']) }}
             {{ Form::textarea('reason', null, ['class' => 'form-control', 'rows' => 3, 'required' => 'required']) }}

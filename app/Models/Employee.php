@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use SebastianBergmann\CodeCoverage\Percentage;
 
 class Employee extends Model
@@ -15,6 +16,9 @@ class Employee extends Model
         'gender',
         'phone',
         'address',
+        'grade',
+        'indice',
+        'echelle',
         'matricule',
         'email',
         'password',
