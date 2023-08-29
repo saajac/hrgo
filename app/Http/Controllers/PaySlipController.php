@@ -195,21 +195,22 @@ class PaySlipController extends Controller
     public function exportPaySlip()
     {
         $employees = Employee::all();
-        /* foreach ($employees as $employee) {
-            $allowance                   = new Allowance();
+        /* 
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
             $allowance->employee_id      = $employee->id;
-            $allowance->allowance_option = 2;
+            $allowance->deduction_option = 1;
             $allowance->title            = '';
             $allowance->type            = 'fixe';
-            $allowance->amount           = '5354';
+            $allowance->amount           = '400';
             $allowance->created_by       = \Auth::user()->creatorId();
             $allowance->save();
-        } 
+        }
 
         foreach ($employees as $employee) {
-            $allowance                   = new Allowance();
+            $allowance                   = new SaturationDeduction();
             $allowance->employee_id      = $employee->id;
-            $allowance->allowance_option = 5;
+            $allowance->deduction_option = 2;
             $allowance->title            = '';
             $allowance->type            = 'fixe';
             $allowance->amount           = '0';
@@ -218,16 +219,105 @@ class PaySlipController extends Controller
         }
 
         foreach ($employees as $employee) {
-            $allowance                   = new Allowance();
+            $allowance                   = new SaturationDeduction();
             $allowance->employee_id      = $employee->id;
-            $allowance->allowance_option = 6;
+            $allowance->deduction_option = 3;
+            $allowance->title            = '';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '1000';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        }
+
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 4;
             $allowance->title            = '';
             $allowance->type            = 'fixe';
             $allowance->amount           = '0';
             $allowance->created_by       = \Auth::user()->creatorId();
             $allowance->save();
-        }*/
+        }
 
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 5;
+            $allowance->title            = '';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        }
+
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 6;
+            $allowance->title            = '';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '1000';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        }
+
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 7;
+            $allowance->title            = '';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        }
+
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 8;
+            $allowance->title            = '';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        }
+
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 9;
+            $allowance->title            = '';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        }
+
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 10;
+            $allowance->title            = '';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        }
+
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 11;
+            $allowance->title            = '';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        } 
+        */
+       
         return Excel::download(new GeneralExport, 'generalExport.xlsx');
     }
 

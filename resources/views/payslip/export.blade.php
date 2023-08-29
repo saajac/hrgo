@@ -10,6 +10,10 @@
             <th>Mission Special</th>
             <th>prime</th>
             <th>Ind medecin</th>
+            <th>All,eau</th>
+            <th>Press, Fam</th>
+            <th>Pm forfaitairePFranc</th>
+            <th>PFranc</th>
             <th>CNR</th>
             <th>Abatt *5%</th>
             <th>MontImp</th>
@@ -25,10 +29,6 @@
             <th>RET POPOTE</th>
             <th>RET A,S</th>
             <th>Retalgamil</th>
-            <th>All,eau</th>
-            <th>Press, Fam</th>
-            <th>Pm forfaitairePFranc</th>
-            <th>PFranc</th>
             <th>NET A PAYE</th>
         </tr>
     </thead>
@@ -51,6 +51,9 @@
             </td>
             <td></td>
             <td>{{ $employee['retmedical'] }}</td>
+            @foreach($employee['deduction'] as $deduction)
+            <td>{{ $deduction->amount }}</td>
+            @endforeach
         </tr>
         @endforeach
     </tbody>

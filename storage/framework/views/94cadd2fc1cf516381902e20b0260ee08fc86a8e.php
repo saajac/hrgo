@@ -10,6 +10,10 @@
             <th>Mission Special</th>
             <th>prime</th>
             <th>Ind medecin</th>
+            <th>All,eau</th>
+            <th>Press, Fam</th>
+            <th>Pm forfaitairePFranc</th>
+            <th>PFranc</th>
             <th>CNR</th>
             <th>Abatt *5%</th>
             <th>MontImp</th>
@@ -25,10 +29,6 @@
             <th>RET POPOTE</th>
             <th>RET A,S</th>
             <th>Retalgamil</th>
-            <th>All,eau</th>
-            <th>Press, Fam</th>
-            <th>Pm forfaitairePFranc</th>
-            <th>PFranc</th>
             <th>NET A PAYE</th>
         </tr>
     </thead>
@@ -53,6 +53,9 @@
             </td>
             <td></td>
             <td><?php echo e($employee['retmedical']); ?></td>
+            <?php $__currentLoopData = $employee['deduction']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $deduction): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <td><?php echo e($deduction->amount); ?></td>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </tr>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </tbody>
