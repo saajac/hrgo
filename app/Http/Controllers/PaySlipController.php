@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\GeneralExport;
 use App\Exports\PayslipExport;
 use App\Models\Allowance;
 use App\Models\Commission;
@@ -18,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PaySlipController extends Controller
 {
@@ -103,7 +105,7 @@ class PaySlipController extends Controller
             $employees = Employee::where('created_by', \Auth::user()->creatorId())->where('company_doj', '<=', date($year . '-' . $month . '-t'))->whereNotIn('employee_id', $validatePaysilp)->get();
 
             $employeesSalary = Employee::where('created_by', \Auth::user()->creatorId())->where('salary', '<=', 0)->first();
-       
+
             if (!empty($employeesSalary)) {
                 return redirect()->route('payslip.index')->with('error', __('Please set employee salary.'));
             }
@@ -188,6 +190,45 @@ class PaySlipController extends Controller
         } else {
             return redirect()->route('payslip.index')->with('error', __('Payslip Already created.'));
         }
+    }
+
+    public function exportPaySlip()
+    {
+        $employees = Employee::all();
+        /* foreach ($employees as $employee) {
+            $allowance                   = new Allowance();
+            $allowance->employee_id      = $employee->id;
+            $allowance->allowance_option = 2;
+            $allowance->title            = '';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '5354';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        } 
+
+        foreach ($employees as $employee) {
+            $allowance                   = new Allowance();
+            $allowance->employee_id      = $employee->id;
+            $allowance->allowance_option = 5;
+            $allowance->title            = '';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        }
+
+        foreach ($employees as $employee) {
+            $allowance                   = new Allowance();
+            $allowance->employee_id      = $employee->id;
+            $allowance->allowance_option = 6;
+            $allowance->title            = '';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        }*/
+
+        return Excel::download(new GeneralExport, 'generalExport.xlsx');
     }
 
     public function destroy($id)

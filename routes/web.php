@@ -562,6 +562,8 @@ Route::group(['middleware' => ['verified']], function () {
         ]
     );
 
+    Route::get('payslip/export', [PaySlipController::class, 'exportPayslip'])->name('payslip.exportall');
+
     Route::get('payslip/paysalary/{id}/{date}', [PaySlipController::class, 'paysalary'])->name('payslip.paysalary')->middleware(
         [
             'auth',
