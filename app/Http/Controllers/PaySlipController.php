@@ -195,47 +195,39 @@ class PaySlipController extends Controller
     public function exportPaySlip()
     {
         $employees = Employee::all();
-        /* 
+        /*
         foreach ($employees as $employee) {
-            $allowance                   = new SaturationDeduction();
+            $allowance                   = new OtherPayment();
             $allowance->employee_id      = $employee->id;
-            $allowance->deduction_option = 1;
-            $allowance->title            = '';
-            $allowance->type            = 'fixe';
-            $allowance->amount           = '400';
+            $allowance->title            = 'All, eau';
+            $allowance->amount           = '620';
             $allowance->created_by       = \Auth::user()->creatorId();
             $allowance->save();
         }
 
         foreach ($employees as $employee) {
-            $allowance                   = new SaturationDeduction();
+            $allowance                   = new OtherPayment();
             $allowance->employee_id      = $employee->id;
-            $allowance->deduction_option = 2;
-            $allowance->title            = '';
-            $allowance->type            = 'fixe';
+            $allowance->title            = 'Press Fam';
             $allowance->amount           = '0';
             $allowance->created_by       = \Auth::user()->creatorId();
             $allowance->save();
         }
 
         foreach ($employees as $employee) {
-            $allowance                   = new SaturationDeduction();
+            $allowance                   = new OtherPayment();
             $allowance->employee_id      = $employee->id;
-            $allowance->deduction_option = 3;
-            $allowance->title            = '';
-            $allowance->type            = 'fixe';
-            $allowance->amount           = '1000';
+            $allowance->title            = 'Pm Forfaitaire';
+            $allowance->amount           = '0';
             $allowance->created_by       = \Auth::user()->creatorId();
             $allowance->save();
         }
 
         foreach ($employees as $employee) {
-            $allowance                   = new SaturationDeduction();
+            $allowance                   = new OtherPayment();
             $allowance->employee_id      = $employee->id;
-            $allowance->deduction_option = 4;
-            $allowance->title            = '';
-            $allowance->type            = 'fixe';
-            $allowance->amount           = '0';
+            $allowance->title            = 'PFranc';
+            $allowance->amount           = '27000';
             $allowance->created_by       = \Auth::user()->creatorId();
             $allowance->save();
         }
