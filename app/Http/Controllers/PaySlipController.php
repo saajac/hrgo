@@ -127,22 +127,24 @@ class PaySlipController extends Controller
                         }
                     }
 
-                    /* $abatt      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 2)->get();
+                    $abatt      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 2)->where('type', '=', 'percentage')->get();
+                    count($abatt) <= 0 ? $abatt = 0 : $abatt = $abatt[0]->amount;
 
-                    $cnr      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 1)->get(); */
+                    $cnr      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 1)->where('type', '=', 'percentage')->get();
+                    count($cnr) <= 0 ? $cnr = 0 : $cnr = $cnr[0]->amount;
 
                     SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 2)->update([
-                        'amount' => (int) bcmul((($employee->salary + $total_allowance) / 100), 5),
+                        'amount' => (int) bcmul((($employee->salary + $total_allowance) / 100), $abatt),
                         'type' => 'fixed'
                     ]);
 
                     SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 5)->update([
-                        'amount' => (int) bcmul((($employee->salary + $total_allowance - ((int) bcmul((($employee->salary + $total_allowance) / 100), 5))) / 100), 2),
+                        'amount' => (int) bcmul((($employee->salary + $total_allowance - ((int) bcmul((($employee->salary + $total_allowance) / 100), $abatt))) / 100), 2),
                         'type' => 'fixed'
                     ]);
 
                     SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 1)->update([
-                        'amount' => (int) bcmul(($employee->salary / 100), 7),
+                        'amount' => (int) bcmul(($employee->salary / 100), $cnr),
                         'type' => 'fixed'
                     ]);
 
