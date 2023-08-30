@@ -115,6 +115,37 @@ class PaySlipController extends Controller
                 $check = Payslip::where('employee_id', $employee->id)->where('salary_month', $formate_month_year)->first();
 
                 if (!$check && $check == null) {
+
+                    $allowances      = Allowance::where('employee_id', '=', $employee->id)->get();
+                    $total_allowance = 0;
+                    foreach ($allowances as $allowance) {
+                        if ($allowance->type == 'percentage') {
+                            $employee          = Employee::find($allowance->employee_id);
+                            $total_allowance  = $allowance->amount * $employee->salary / 100  + $total_allowance;
+                        } else {
+                            $total_allowance = $allowance->amount + $total_allowance;
+                        }
+                    }
+
+                    /* $abatt      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 2)->get();
+
+                    $cnr      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 1)->get(); */
+
+                    SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 2)->update([
+                        'amount' => (int) bcmul((($employee->salary + $total_allowance) / 100), 5),
+                        'type' => 'fixed'
+                    ]);
+
+                    SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 5)->update([
+                        'amount' => (int) bcmul((($employee->salary + $total_allowance - ((int) bcmul((($employee->salary + $total_allowance) / 100), 5))) / 100), 2),
+                        'type' => 'fixed'
+                    ]);
+
+                    SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 1)->update([
+                        'amount' => (int) bcmul(($employee->salary / 100), 7),
+                        'type' => 'fixed'
+                    ]);
+
                     $payslipEmployee                       = new PaySlip();
                     $payslipEmployee->employee_id          = $employee->id;
                     $payslipEmployee->net_payble           = $employee->get_net_salary();
@@ -195,6 +226,7 @@ class PaySlipController extends Controller
     public function exportPaySlip()
     {
         $employees = Employee::all();
+        /*  */
         /*
         foreach ($employees as $employee) {
             $allowance                   = new OtherPayment();
@@ -230,86 +262,140 @@ class PaySlipController extends Controller
             $allowance->amount           = '27000';
             $allowance->created_by       = \Auth::user()->creatorId();
             $allowance->save();
+        } */
+        /* 
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 1;
+            $allowance->title            = 'CNR';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
         }
-
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 2;
+            $allowance->title            = 'Abatt';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        }
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 4;
+            $allowance->title            = 'Ret Waqf';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '400';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        }
         foreach ($employees as $employee) {
             $allowance                   = new SaturationDeduction();
             $allowance->employee_id      = $employee->id;
             $allowance->deduction_option = 5;
-            $allowance->title            = '';
+            $allowance->title            = 'Ret Medical';
             $allowance->type            = 'fixe';
             $allowance->amount           = '0';
             $allowance->created_by       = \Auth::user()->creatorId();
             $allowance->save();
         }
-
         foreach ($employees as $employee) {
             $allowance                   = new SaturationDeduction();
             $allowance->employee_id      = $employee->id;
             $allowance->deduction_option = 6;
-            $allowance->title            = '';
+            $allowance->title            = 'Sai Arret';
             $allowance->type            = 'fixe';
-            $allowance->amount           = '1000';
+            $allowance->amount           = '0';
             $allowance->created_by       = \Auth::user()->creatorId();
             $allowance->save();
         }
-
         foreach ($employees as $employee) {
             $allowance                   = new SaturationDeduction();
             $allowance->employee_id      = $employee->id;
             $allowance->deduction_option = 7;
-            $allowance->title            = '';
+            $allowance->title            = 'FONT HABITAT';
             $allowance->type            = 'fixe';
             $allowance->amount           = '0';
             $allowance->created_by       = \Auth::user()->creatorId();
             $allowance->save();
         }
-
         foreach ($employees as $employee) {
             $allowance                   = new SaturationDeduction();
             $allowance->employee_id      = $employee->id;
             $allowance->deduction_option = 8;
-            $allowance->title            = '';
-            $allowance->type            = 'fixe';
-            $allowance->amount           = '0';
-            $allowance->created_by       = \Auth::user()->creatorId();
-            $allowance->save();
-        }
-
-        foreach ($employees as $employee) {
-            $allowance                   = new SaturationDeduction();
-            $allowance->employee_id      = $employee->id;
-            $allowance->deduction_option = 9;
-            $allowance->title            = '';
-            $allowance->type            = 'fixe';
-            $allowance->amount           = '0';
-            $allowance->created_by       = \Auth::user()->creatorId();
-            $allowance->save();
-        }
-
-        foreach ($employees as $employee) {
-            $allowance                   = new SaturationDeduction();
-            $allowance->employee_id      = $employee->id;
-            $allowance->deduction_option = 10;
-            $allowance->title            = '';
-            $allowance->type            = 'fixe';
-            $allowance->amount           = '0';
-            $allowance->created_by       = \Auth::user()->creatorId();
-            $allowance->save();
-        }
-
-        foreach ($employees as $employee) {
-            $allowance                   = new SaturationDeduction();
-            $allowance->employee_id      = $employee->id;
-            $allowance->deduction_option = 11;
-            $allowance->title            = '';
+            $allowance->title            = 'Ret logem';
             $allowance->type            = 'fixe';
             $allowance->amount           = '0';
             $allowance->created_by       = \Auth::user()->creatorId();
             $allowance->save();
         } 
-        */
-       
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 9;
+            $allowance->title            = 'RET COLLECT';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '1000';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        } 
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 10;
+            $allowance->title            = 'Ret Sub';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        } 
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 11;
+            $allowance->title            = 'Ret foyer';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        } 
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 12;
+            $allowance->title            = 'RET POPOTE';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        } 
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 14;
+            $allowance->title            = 'RET A,S';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        } 
+        foreach ($employees as $employee) {
+            $allowance                   = new SaturationDeduction();
+            $allowance->employee_id      = $employee->id;
+            $allowance->deduction_option = 16;
+            $allowance->title            = 'Ret Algamil';
+            $allowance->type            = 'fixe';
+            $allowance->amount           = '0';
+            $allowance->created_by       = \Auth::user()->creatorId();
+            $allowance->save();
+        } 
+*/
+
         return Excel::download(new GeneralExport, 'generalExport.xlsx');
     }
 

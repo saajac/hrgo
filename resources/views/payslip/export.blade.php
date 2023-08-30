@@ -12,10 +12,10 @@
             <th>Ind medecin</th>
             <th>CNR</th>
             <th>Abatt *5%</th>
-            <th>MontImp</th>
-            <th>RET Impot</th>
-            <th>Retmedical</th>
+            <!-- <th>MontImp</th>
+            <th>RET Impot</th> -->
             <th>RET waqf</th>
+            <th>Retmedical</th>
             <th>Sai Arret</th>
             <th>FONT HABITAT</th>
             <th>Ret logem</th>
@@ -42,15 +42,6 @@
             @foreach($employee['allowance'] as $allowance)
             <td>{{ $allowance->amount }}</td>
             @endforeach
-            <td>{{ $employee['cnr'] }}</td>
-            <td>
-                {{ $employee['abatt'] }}
-            </td>
-            <td>
-                {{ $employee['salary'] + $employee['allowance_total'] - $employee['cnr'] - $employee['abatt'] }}
-            </td>
-            <td></td>
-            <td>{{ $employee['retmedical'] }}</td>
             @foreach($employee['deduction'] as $deduction)
             <td>{{ $deduction->amount }}</td>
             @endforeach

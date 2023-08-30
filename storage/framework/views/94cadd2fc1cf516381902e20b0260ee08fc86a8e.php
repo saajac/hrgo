@@ -12,10 +12,10 @@
             <th>Ind medecin</th>
             <th>CNR</th>
             <th>Abatt *5%</th>
-            <th>MontImp</th>
-            <th>RET Impot</th>
-            <th>Retmedical</th>
+            <!-- <th>MontImp</th>
+            <th>RET Impot</th> -->
             <th>RET waqf</th>
+            <th>Retmedical</th>
             <th>Sai Arret</th>
             <th>FONT HABITAT</th>
             <th>Ret logem</th>
@@ -42,17 +42,6 @@
             <?php $__currentLoopData = $employee['allowance']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $allowance): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <td><?php echo e($allowance->amount); ?></td>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-            <td><?php echo e($employee['cnr']); ?></td>
-            <td>
-                <?php echo e($employee['abatt']); ?>
-
-            </td>
-            <td>
-                <?php echo e($employee['salary'] + $employee['allowance_total'] - $employee['cnr'] - $employee['abatt']); ?>
-
-            </td>
-            <td></td>
-            <td><?php echo e($employee['retmedical']); ?></td>
             <?php $__currentLoopData = $employee['deduction']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $deduction): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <td><?php echo e($deduction->amount); ?></td>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
