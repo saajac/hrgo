@@ -45,6 +45,9 @@
             <?php $__currentLoopData = $employee['deduction']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $deduction): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <td><?php echo e($deduction->amount); ?></td>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            <?php $__currentLoopData = $employee['loan']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $loan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <td><?php echo e($loan->title); ?></td>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             <?php $__currentLoopData = $employee['otherPayment']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $otherPayment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <td><?php echo e($otherPayment->amount); ?></td>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

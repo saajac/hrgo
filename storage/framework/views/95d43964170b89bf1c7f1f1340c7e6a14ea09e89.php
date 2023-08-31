@@ -115,6 +115,10 @@
 
 <?php $__env->startSection('action-button'); ?>
     <div class="float-end">
+    <a href="<?php echo e(route('payslip.exportall', ['month' => isset($_GET['month']) ? $_GET['month'] : date('Y-m')])); ?>"
+            class="btn btn-sm btn-primary float-end" data-bs-toggle="tooltip" style="margin-left: 5px;">
+            <i class="ti ti-file-download"></i>
+        </a>
         <a href="#" class="btn btn-sm btn-primary" onclick="saveAsPDF()" data-bs-toggle="tooltip"
             title="<?php echo e(__('Download')); ?>" data-original-title="<?php echo e(__('Download')); ?>" style="margin-right: 5px;">
             <span class="btn-inner--icon"><i class="ti ti-download"></i></span>

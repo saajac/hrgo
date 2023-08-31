@@ -15,6 +15,7 @@ class GeneralExport implements FromView
     public function view(): View
     {
         $employees = Employee::all();
+        $salary_month = $_SESSION['salary_month'];
         /* foreach ($employees as $employee) {
             $allowance                   = new SaturationDeduction();
             $allowance->employee_id      = $employee->id;
@@ -45,16 +46,14 @@ class GeneralExport implements FromView
             /* header('Content-Type: application/json');
             die(json_encode($whole_deduction)); */
 
-            $paySlip = PaySlip::selectRaw('*')->where('employee_id', $employee->id)->get();
+            $paySlip = PaySlip::selectRaw('*')->where('employee_id', $employee->id)->where('salary_month', $salary_month)->get();
             if (count($paySlip) >= 1) {
                 $allowance = json_decode($paySlip[0]->allowance);
                 $deduction = json_decode($paySlip[0]->saturation_deduction);
                 $otherPayment = json_decode($paySlip[0]->other_payment);
+                $loan = json_decode($paySlip[0]->loan);
 
-                array_push($whole_employee, ['name' => $employee->name, 'grade' => $employee->grade, 'indice' => $employee->indice, 'salary' => $employee->salary, 'allowance' => $allowance, 'deduction' => $deduction, 'otherPayment' => $otherPayment, 'net' => Employee::find($employee->id)->get_net_salary(), 'retmedical' => (int) bcmul((($employee->salary + $total_allowance - ((int) bcmul((($employee->salary + $total_allowance) / 100), 5))) / 100), 2), 'allowance_total' => $total_allowance]);
-            } else {
-                header('Content-Type: application/json');
-                die(json_encode([0 => 'Done']));
+                array_push($whole_employee, ['name' => $employee->name, 'grade' => $employee->grade, 'indice' => $employee->indice, 'salary' => $employee->salary, 'allowance' => $allowance, 'deduction' => $deduction, 'otherPayment' => $otherPayment, 'net' => Employee::find($employee->id)->get_net_salary(), 'retmedical' => (int) bcmul((($employee->salary + $total_allowance - ((int) bcmul((($employee->salary + $total_allowance) / 100), 5))) / 100), 2), 'loan' => $loan, 'allowance_total' => $total_allowance]);
             }
 
             /* $abatt_key = null;

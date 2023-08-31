@@ -128,16 +128,22 @@ class PaySlipController extends Controller
                     }
 
                     $abatt      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 2)->where('type', '=', 'percentage')->get();
-                    if(count($abatt) > 0) {
+                    if (count($abatt) > 0) {
                         $abatt = $abatt[0]->amount;
-                        SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 2)->update([
+                        if (($employee->salary + $total_allowance) > 80000) SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 2)->update([
                             'amount' => (int) bcmul((($employee->salary + $total_allowance) / 100), $abatt),
                             'type' => 'fixed'
                         ]);
+                        else {
+                            SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 2)->update([
+                                'amount' => 0,
+                                'type' => 'fixed'
+                            ]);
+                        }
                     }
 
                     $cnr      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 1)->where('type', '=', 'percentage')->get();
-                    if(count($cnr) > 0) {
+                    if (count($cnr) > 0) {
                         $cnr = $cnr[0]->amount;
                         SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 1)->update([
                             'amount' => (int) bcmul(($employee->salary / 100), $cnr),
@@ -146,11 +152,14 @@ class PaySlipController extends Controller
                     }
 
                     $retmedi      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 5)->where('type', '=', 'percentage')->get();
-                    if(count($retmedi) > 0) {
+                    $abatt      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 2)->get();
+                    $abatt = $abatt[0]->amount;
+                    if (count($retmedi) > 0) {
                         $retmedi = $retmedi[0]->amount;
                         $abatt      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 2)->get();
+                        $abatt = $abatt[0]->amount;
                         SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 5)->update([
-                            'amount' => (int) bcmul((($employee->salary + $total_allowance - ((int) bcmul((($employee->salary + $total_allowance) / 100), $abatt))) / 100), 2),
+                            'amount' => (int) bcmul((($employee->salary + $total_allowance - $abatt) / 100), 2),
                             'type' => 'fixed'
                         ]);
                     }
@@ -232,10 +241,9 @@ class PaySlipController extends Controller
         }
     }
 
-    public function exportPaySlip()
+    public function exportPaySlip(Request $request)
     {
         $employees = Employee::all();
-        /*  */
         /*
         foreach ($employees as $employee) {
             $allowance                   = new OtherPayment();
@@ -404,6 +412,8 @@ class PaySlipController extends Controller
             $allowance->save();
         } 
 */
+
+        $_SESSION['salary_month'] = isset($request->month) ? $request->month : date('Y-m');
 
         return Excel::download(new GeneralExport, 'generalExport.xlsx');
     }

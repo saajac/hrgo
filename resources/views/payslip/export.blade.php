@@ -45,6 +45,9 @@
             @foreach($employee['deduction'] as $deduction)
             <td>{{ $deduction->amount }}</td>
             @endforeach
+            @foreach($employee['loan'] as $loan)
+            <td>{{ $loan->title }}</td>
+            @endforeach
             @foreach($employee['otherPayment'] as $otherPayment)
             <td>{{ $otherPayment->amount }}</td>
             @endforeach
