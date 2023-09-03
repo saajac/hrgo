@@ -67,7 +67,36 @@ class EmployeeController extends Controller
 
             $employeesId      = \Auth::user()->employeeIdFormat($this->employeeNumber());
 
-            return view('employee.create', compact('employees', 'employeesId', 'departments', 'designations', 'documents', 'branches', 'company_settings'));
+            $grades = [
+                'LT/COL',
+                'CDT',
+                'CNE',
+                'LT',
+                'S/LT',
+                'ASPIRANT',
+                'MAJOR',
+                'A/C',
+                'ADJ',
+                'S/C',
+                'SGT',
+                'C/C',
+                'CAP'
+            ];
+
+            $banks = [
+                'EXIM',
+                'BDCD',
+                'BCIMR',
+                'IIB',
+                'IBB',
+                'CAC',
+                'SALAM BANK',
+                'SABA',
+                'EAST AFRICA',
+                'BOA'
+            ];
+
+            return view('employee.create', compact('employees', 'employeesId', 'departments', 'designations', 'documents', 'branches', 'grades', 'banks', 'company_settings'));
         } else {
             return redirect()->back()->with('error', __('Permission denied.'));
         }
@@ -83,7 +112,7 @@ class EmployeeController extends Controller
                     'name' => 'required',
                     'dob' => 'required',
                     'gender' => 'required',
-                    'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9',
+                    'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:8',
                     'address' => 'required',
                     'matricule' => 'required',
                     'email' => 'required|unique:users',
