@@ -5,15 +5,17 @@
             <th>Grade</th>
             <th>Indice</th>
             <th>SalaireBase</th>
+            <!-- Allocations -->
             <th>Sujet Police</th>
             <th>Mensuelle RespPart</th>
             <th>Mission Special</th>
             <th>prime</th>
             <th>Ind medecin</th>
+            <!-- Deductions -->
             <th>CNR</th>
             <th>Abatt *5%</th>
-            <!-- <th>MontImp</th>
-            <th>RET Impot</th> -->
+            <th>MontImp</th>
+            <th>RET Impot</th>
             <th>RET waqf</th>
             <th>Retmedical</th>
             <th>Sai Arret</th>
@@ -24,7 +26,9 @@
             <th>Ret foyer</th>
             <th>RET POPOTE</th>
             <th>RET A,S</th>
+            <!-- Prêt -->
             <th>Retalgamil</th>
+            <!-- Autre Paiement -->
             <th>All,eau</th>
             <th>Press, Fam</th>
             <th>Pm forfaitairePFranc</th>
