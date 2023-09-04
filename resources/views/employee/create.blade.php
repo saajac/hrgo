@@ -67,7 +67,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group col-md-6">
+                                <!-- <div class="form-group col-md-6">
                                     {!! Form::label('email', __('Email'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
                                     {!! Form::email('email', old('email'), [
                                         'class' => 'form-control',
@@ -80,7 +80,7 @@
                                         'class' => 'form-control',
                                         'placeholder' => 'Enter employee Password',
                                     ]) !!}
-                                </div>
+                                </div> -->
                             </div>
                             <div class="form-group">
                                 {!! Form::label('address', __('Address'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
@@ -150,20 +150,20 @@
                                 </div>
 
                                 <div class="form-group col-md-6">
-                                    {{ Form::label('branch_id', __('Select Branch'), ['class' => 'form-label']) }}<span class="text-danger pl-1">*</span>
+                                    {{ Form::label('branch_id', __('Select Branch'), ['class' => 'form-label']) }}
                                     <div class="form-icon-user">
-                                        {{ Form::select('branch_id', $branches, null, ['class' => 'form-control branch_id', 'required' => 'required', 'placeholder' => 'Select Branch', 'id' => 'branch_id']) }}
+                                        {{ Form::select('branch_id', $branches, null, ['class' => 'form-control branch_id', 'placeholder' => 'Select Branch', 'id' => 'branch_id']) }}
                                     </div>
                                 </div>
 
                                 <div class="form-group col-md-6">
-                                    {{-- {{ Form::label('department_id', __('Select Department*'), ['class' => 'form-label']) }}<span class="text-danger pl-1">*</span>
+                                    {{-- {{ Form::label('department_id', __('Select Department*'), ['class' => 'form-label']) }}
                                     <div class="form-icon-user">
-                                        {{ Form::select('department_id', $departments, null, ['class' => 'form-control ', 'id' => 'department_id', 'required' => 'required', 'placeholder' => 'Select Department']) }}
+                                        {{ Form::select('department_id', $departments, null, ['class' => 'form-control ', 'id' => 'department_id', 'placeholder' => 'Select Department']) }}
                                     </div> --}}
 
                                     <div class="form-icon-user" id="department_id">
-                                        {{ Form::label('department_id', __('Department'), ['class' => 'form-label']) }}<span class="text-danger pl-1">*</span>
+                                        {{ Form::label('department_id', __('Department'), ['class' => 'form-label']) }}
                                         <select class="form-control department_id" name="department_id" id="department_id"
                                             placeholder="Select Department">
                                         </select>
@@ -396,7 +396,7 @@
                 //                         placeholder="Select Designation" >
                 //                         </select>`;
                     var emp_selct = `<select class="form-control designation_id" name="designation_id"
-                                                 placeholder="Select Designation" required>
+                                                 placeholder="Select Designation">
                                             </select>`;
                     $('.designation_div').html(emp_selct);
 

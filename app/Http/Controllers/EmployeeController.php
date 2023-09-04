@@ -19,15 +19,22 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Imports\EmployeesImport;
 use App\Exports\EmployeesExport;
+use App\Models\Allowance;
+use App\Models\AllowanceOption;
 use App\Models\Asset;
 use App\Models\Contract;
+use App\Models\DeductionOption;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\NOC;
 use App\Models\Termination;
 use App\Models\ExperienceCertificate;
 use App\Models\JoiningLetter;
+use App\Models\Loan;
+use App\Models\LoanOption;
 use App\Models\LoginDetail;
+use App\Models\OtherPayment;
 use App\Models\PaySlip;
+use App\Models\SaturationDeduction;
 
 //use Faker\Provider\File;
 
@@ -68,32 +75,32 @@ class EmployeeController extends Controller
             $employeesId      = \Auth::user()->employeeIdFormat($this->employeeNumber());
 
             $grades = [
-                'LT/COL',
-                'CDT',
-                'CNE',
-                'LT',
-                'S/LT',
-                'ASPIRANT',
-                'MAJOR',
-                'A/C',
-                'ADJ',
-                'S/C',
-                'SGT',
-                'C/C',
-                'CAP'
+                'LT/COL' => 'LT/COL',
+                'CDT' => 'CDT',
+                'CNE' => 'CNE',
+                'LT' => 'LT',
+                'S/LT' => 'S/LT',
+                'ASPIRANT' => 'ASPIRANT',
+                'MAJOR' => 'MAJOR',
+                'A/C' => 'A/C',
+                'ADJ' => 'ADJ',
+                'S/C' => 'S/C',
+                'SGT' => 'SGT',
+                'C/C' => 'C/C',
+                'CAP' => 'CAP'
             ];
 
             $banks = [
-                'EXIM',
-                'BDCD',
-                'BCIMR',
-                'IIB',
-                'IBB',
-                'CAC',
-                'SALAM BANK',
-                'SABA',
-                'EAST AFRICA',
-                'BOA'
+                'EXIM' => 'EXIM',
+                'BDCD' => 'BDCD',
+                'BCIMR' => 'BCIMR',
+                'IIB' => 'IIB',
+                'IBB' => 'IBB',
+                'CAC' => 'CAC',
+                'SALAM BANK' => 'SALAM BANK',
+                'SABA' => 'SABA',
+                'EAST AFRICA' => 'EAST AFRICA',
+                'BOA' => 'BOA'
             ];
 
             return view('employee.create', compact('employees', 'employeesId', 'departments', 'designations', 'documents', 'branches', 'grades', 'banks', 'company_settings'));
@@ -115,10 +122,11 @@ class EmployeeController extends Controller
                     'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:8',
                     'address' => 'required',
                     'matricule' => 'required',
-                    'email' => 'required|unique:users',
-                    'password' => 'required',
-                    'department_id' => 'required',
-                    'designation_id' => 'required',
+                    'indice' => 'required',
+                    /* 'email' => 'required|unique:users',
+                    'password' => 'required', */
+                    /* 'department_id' => 'required',
+                    'designation_id' => 'required', */
                     'document.*' => 'required',
                 ]
             );
@@ -155,8 +163,10 @@ class EmployeeController extends Controller
             $user = User::create(
                 [
                     'name' => $request['name'],
-                    'email' => $request['email'],
-                    'password' => Hash::make($request['password']),
+                    /* 'email' => $request['email'],
+                    'password' => Hash::make($request['password']), */
+                    'email' => "",
+                    'password' => "",
                     'type' => 'employee',
                     'lang' => !empty($default_language) ? $default_language->value : 'en',
                     'created_by' => \Auth::user()->creatorId(),
@@ -173,21 +183,30 @@ class EmployeeController extends Controller
                 $document_implode = null;
             }
 
+            $whole_indices = \DB::table('indices')->select('salary')->where('indice', '=', $request['indice'])->first();
+
+            if ($whole_indices->salary == null) {
+                return redirect()->back()->with('error', __('Indice introuvable !'));
+            }
+
             $employee = Employee::create(
                 [
                     'user_id' => $user->id,
                     'name' => $request['name'],
                     'dob' => $request['dob'],
                     'gender' => $request['gender'],
+                    'grade' => $request['grade_id'],
+                    'indice' => $request['indice'],
+                    'salary' => $whole_indices->salary,
                     'phone' => $request['phone'],
                     'address' => $request['address'],
                     'matricule' => $request['matricule'],
                     'email' => $request['email'],
                     'password' => Hash::make($request['password']),
                     'employee_id' => $this->employeeNumber(),
-                    'branch_id' => $request['branch_id'],
-                    'department_id' => $request['department_id'],
-                    'designation_id' => $request['designation_id'],
+                    'branch_id' => isset($request['branch_id']) ? $request['branch_id'] : "",
+                    'department_id' => isset($request['department_id']) ? $request['department_id'] : "",
+                    'designation_id' => isset($request['designation_id']) ? $request['designation_id'] : "",
                     'company_doj' => $request['company_doj'],
                     'documents' => $document_implode,
                     'account_holder_name' => $request['account_holder_name'],
@@ -232,6 +251,273 @@ class EmployeeController extends Controller
                     $employee_document->save();
                 }
             }
+
+            /* ------------------------------------------------ */ /* ------ Initialisation automatique ------ */ 
+
+            $declared_allowance = AllowanceOption::all();
+            $declared_deduction = DeductionOption::all();
+            $declared_loans = LoanOption::all();
+
+            $officers = ['S/LT', 'LT', 'CNE', 'CDT', 'LT/COL'];
+
+            /* ------ Enregistrement d'autre paiement ------ */ 
+
+            $new_otherPayment                   = new OtherPayment();
+            $new_otherPayment->employee_id      = $employee->id;
+            $new_otherPayment->title            = 'All,eau';
+            $new_otherPayment->amount           = '620';
+            $new_otherPayment->created_by       = \Auth::user()->creatorId();
+            $new_otherPayment->save();
+
+            $new_otherPayment                   = new OtherPayment();
+            $new_otherPayment->employee_id      = $employee->id;
+            $new_otherPayment->title            = 'Press,Fam';
+            $new_otherPayment->amount           = '0';
+            $new_otherPayment->created_by       = \Auth::user()->creatorId();
+            $new_otherPayment->save();
+
+            $new_otherPayment                   = new OtherPayment();
+            $new_otherPayment->employee_id      = $employee->id;
+            $new_otherPayment->title            = 'Pm forfaitaire';
+            $new_otherPayment->amount           = '0';
+            $new_otherPayment->created_by       = \Auth::user()->creatorId();
+            $new_otherPayment->save();
+
+            $new_otherPayment                   = new OtherPayment();
+            $new_otherPayment->employee_id      = $employee->id;
+            $new_otherPayment->title            = 'PFranc';
+            $new_otherPayment->amount           = '27000';
+            $new_otherPayment->created_by       = \Auth::user()->creatorId();
+            $new_otherPayment->save();
+
+            /* ------ Enregistrement des crédits ------ */ 
+
+            foreach ($declared_loans as $loan) {
+                switch ($loan->id) {
+                    case '1':
+                        $new_loan                   = new Loan();
+                        $new_loan->employee_id      = $employee->id;
+                        $new_loan->title            = $loan->name;
+                        $new_loan->loan_option      = '1';
+                        $new_loan->amount           = '0';
+                        $new_loan->type           = 'fixed';
+                        $new_loan->created_by       = \Auth::user()->creatorId();
+                        $new_loan->save();
+                        break;
+                }
+            }
+
+            /* ------ Enregistrement des allocations ------ */ 
+
+            foreach ($declared_allowance as $allowance) {
+                switch ($allowance->id) {
+                    case '2':
+                        $new_allowance                   = new Allowance();
+                        $new_allowance->employee_id      = $employee->id;
+                        $new_allowance->title            = $allowance->name;
+                        $new_allowance->allowance_option      = '2';
+                        $new_allowance->amount           = '5354';
+                        $new_allowance->type             = 'fixed';
+                        $new_allowance->created_by       = \Auth::user()->creatorId();
+                        $new_allowance->save();
+                        break;
+
+                    case '3':
+                        $new_allowance                   = new Allowance();
+                        $new_allowance->employee_id      = $employee->id;
+                        $new_allowance->title            = $allowance->name;
+                        $new_allowance->allowance_option      = '3';
+                        $new_allowance->amount           = in_array($request['grade'], $officers) ? '28624' : '5333';
+                        $new_allowance->type           = 'fixed';
+                        $new_allowance->created_by       = \Auth::user()->creatorId();
+                        $new_allowance->save();
+                        break;
+
+                    case '4':
+                        $new_allowance                   = new Allowance();
+                        $new_allowance->employee_id      = $employee->id;
+                        $new_allowance->title            = $allowance->name;
+                        $new_allowance->allowance_option      = '4';
+                        $new_allowance->amount           = in_array($request['grade'], $officers) ? '0' : '8041';
+                        $new_allowance->type           = 'fixed';
+                        $new_allowance->created_by       = \Auth::user()->creatorId();
+                        $new_allowance->save();
+                        break;
+
+                    case '5':
+                        $new_allowance                   = new Allowance();
+                        $new_allowance->employee_id      = $employee->id;
+                        $new_allowance->title            = $allowance->name;
+                        $new_allowance->allowance_option      = '5';
+                        $new_allowance->amount           = '0';
+                        $new_allowance->type           = 'fixed';
+                        $new_allowance->created_by       = \Auth::user()->creatorId();
+                        $new_allowance->save();
+                        break;
+
+                    case '6':
+                        $new_allowance                   = new Allowance();
+                        $new_allowance->employee_id      = $employee->id;
+                        $new_allowance->title            = $allowance->name;
+                        $new_allowance->allowance_option      = '6';
+                        $new_allowance->amount           = '0';
+                        $new_allowance->type           = 'fixed';
+                        $new_allowance->created_by       = \Auth::user()->creatorId();
+                        $new_allowance->save();
+                        break;
+                }
+            }
+
+            /* ------ Enregistrement des déductions ------ */ 
+
+            foreach ($declared_deduction as $deduction) {
+                switch ($deduction->id) {
+                    case '1':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '1';
+                        $new_deduction->amount           = '7';
+                        $new_deduction->type           = 'percentage';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '2':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '2';
+                        $new_deduction->amount           = '5';
+                        $new_deduction->type           = 'percentage';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '3':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '3';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '4':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '4';
+                        $new_deduction->amount           = '400';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '5':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '5';
+                        $new_deduction->amount           = '2';
+                        $new_deduction->type           = 'percentage';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '6':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '6';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '7':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '7';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '8':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '8';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '9':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '9';
+                        $new_deduction->amount           = '1000';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '10':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '10';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '11':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '11';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '12':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '12';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '14':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '14';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+                }
+            }
+
+            /* ------------------------------------------------ */
 
             $setings = Utility::settings();
             if ($setings['new_employee'] == 1) {

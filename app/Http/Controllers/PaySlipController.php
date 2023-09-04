@@ -18,6 +18,7 @@ use App\Models\OtherPayment;
 use App\Models\Overtime;
 use App\Models\PaySlip;
 use App\Models\SaturationDeduction;
+use App\Models\tabDefault;
 use App\Models\Utility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -248,11 +249,8 @@ class PaySlipController extends Controller
 
     public function initiation()
     {
-        $declared_allowance = AllowanceOption::all();
-        $declared_deduction = DeductionOption::all();
-        $declared_loans = LoanOption::all();
 
-        $employees = Employee::all();
+        /* $employees = Employee::all();
 
         \DB::table('allowances')->truncate();
         \DB::table('saturation_deductions')->truncate();
@@ -446,10 +444,11 @@ class PaySlipController extends Controller
                         break;
                 }
             }
-        }
+        } */
 
         header('Content-Type: application/json');
         die(json_encode([Allowance::all(), SaturationDeduction::all()]));
+        
     }
 
     public function exportPaySlip(Request $request)

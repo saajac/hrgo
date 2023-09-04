@@ -70,7 +70,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group col-md-6">
+                                <!-- <div class="form-group col-md-6">
                                     <?php echo Form::label('email', __('Email'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
                                     <?php echo Form::email('email', old('email'), [
                                         'class' => 'form-control',
@@ -85,7 +85,7 @@
                                         'placeholder' => 'Enter employee Password',
                                     ]); ?>
 
-                                </div>
+                                </div> -->
                             </div>
                             <div class="form-group">
                                 <?php echo Form::label('address', __('Address'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
@@ -163,9 +163,10 @@
                                 </div>
 
                                 <div class="form-group col-md-6">
-                                    <?php echo e(Form::label('branch_id', __('Select Branch'), ['class' => 'form-label'])); ?><span class="text-danger pl-1">*</span>
+                                    <?php echo e(Form::label('branch_id', __('Select Branch'), ['class' => 'form-label'])); ?>
+
                                     <div class="form-icon-user">
-                                        <?php echo e(Form::select('branch_id', $branches, null, ['class' => 'form-control branch_id', 'required' => 'required', 'placeholder' => 'Select Branch', 'id' => 'branch_id'])); ?>
+                                        <?php echo e(Form::select('branch_id', $branches, null, ['class' => 'form-control branch_id', 'placeholder' => 'Select Branch', 'id' => 'branch_id'])); ?>
 
                                     </div>
                                 </div>
@@ -174,7 +175,8 @@
                                     
 
                                     <div class="form-icon-user" id="department_id">
-                                        <?php echo e(Form::label('department_id', __('Department'), ['class' => 'form-label'])); ?><span class="text-danger pl-1">*</span>
+                                        <?php echo e(Form::label('department_id', __('Department'), ['class' => 'form-label'])); ?>
+
                                         <select class="form-control department_id" name="department_id" id="department_id"
                                             placeholder="Select Department">
                                         </select>
@@ -440,7 +442,7 @@ unset($__errorArgs, $__bag); ?> "
                 //                         placeholder="Select Designation" >
                 //                         </select>`;
                     var emp_selct = `<select class="form-control designation_id" name="designation_id"
-                                                 placeholder="Select Designation" required>
+                                                 placeholder="Select Designation">
                                             </select>`;
                     $('.designation_div').html(emp_selct);
 
