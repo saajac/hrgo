@@ -29,6 +29,7 @@ use App\Models\NOC;
 use App\Models\Termination;
 use App\Models\ExperienceCertificate;
 use App\Models\JoiningLetter;
+use App\Models\ListImpot;
 use App\Models\Loan;
 use App\Models\LoanOption;
 use App\Models\LoginDetail;
@@ -252,7 +253,7 @@ class EmployeeController extends Controller
                 }
             }
 
-            /* ------------------------------------------------ */ /* ------ Initialisation automatique ------ */ 
+            /* ------------------------------------------------ */ /* ------ Initialisation automatique ------ */
 
             $declared_allowance = AllowanceOption::all();
             $declared_deduction = DeductionOption::all();
@@ -260,7 +261,7 @@ class EmployeeController extends Controller
 
             $officers = ['S/LT', 'LT', 'CNE', 'CDT', 'LT/COL'];
 
-            /* ------ Enregistrement d'autre paiement ------ */ 
+            /* ------ Enregistrement d'autre paiement ------ */
 
             $new_otherPayment                   = new OtherPayment();
             $new_otherPayment->employee_id      = $employee->id;
@@ -290,7 +291,7 @@ class EmployeeController extends Controller
             $new_otherPayment->created_by       = \Auth::user()->creatorId();
             $new_otherPayment->save();
 
-            /* ------ Enregistrement des crédits ------ */ 
+            /* ------ Enregistrement des crédits ------ */
 
             foreach ($declared_loans as $loan) {
                 switch ($loan->id) {
@@ -307,7 +308,7 @@ class EmployeeController extends Controller
                 }
             }
 
-            /* ------ Enregistrement des allocations ------ */ 
+            /* ------ Enregistrement des allocations ------ */
 
             foreach ($declared_allowance as $allowance) {
                 switch ($allowance->id) {
@@ -368,7 +369,7 @@ class EmployeeController extends Controller
                 }
             }
 
-            /* ------ Enregistrement des déductions ------ */ 
+            /* ------ Enregistrement des déductions ------ */
 
             foreach ($declared_deduction as $deduction) {
                 switch ($deduction->id) {
@@ -399,7 +400,7 @@ class EmployeeController extends Controller
                         $new_deduction->employee_id      = $employee->id;
                         $new_deduction->title            = $deduction->name;
                         $new_deduction->deduction_option      = '3';
-                        $new_deduction->amount           = '0';
+                        $new_deduction->amount           = ListImpot::select('montant')->where('tranche_basse', '<=', $whole_indices->salary)->where('tranche_haute', '>=', $whole_indices->salary)->first()->montant;
                         $new_deduction->type           = 'fixed';
                         $new_deduction->created_by       = \Auth::user()->creatorId();
                         $new_deduction->save();
