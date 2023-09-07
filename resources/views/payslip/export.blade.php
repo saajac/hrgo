@@ -50,7 +50,7 @@
             <td>{{ $deduction->amount }}</td>
             @endforeach
             @foreach($employee['loan'] as $loan)
-            <td>{{ $loan->title }}</td>
+            <td>{{ $loan->amount }}</td>
             @endforeach
             @foreach($employee['otherPayment'] as $otherPayment)
             <td>{{ $otherPayment->amount }}</td>

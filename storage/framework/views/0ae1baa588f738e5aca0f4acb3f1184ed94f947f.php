@@ -84,14 +84,14 @@
                 </div>
                 <?php if(\Auth::user()->type != 'employee'): ?>
                     <div class="col-md-6 ">
-                        <div class="card " style="height: 506px">
+                        <div class="card ">
                             <div class="card-header">
                                 <h5><?php echo e(__('Company Detail')); ?></h5>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body employee-detail-create-body">
                                 <div class="row">
                                     <?php echo csrf_field(); ?>
-                                    <div class="form-group col-md-6">
+                                    <div class="form-group">
                                         <?php echo Form::label('employee_id', __('Employee ID'), ['class' => 'form-label']); ?>
 
                                         <?php echo Form::text('employee_id', $employeesId, ['class' => 'form-control', 'disabled' => 'disabled']); ?>
@@ -102,34 +102,41 @@
                                         <?php echo Form::text('matricule', $employee->matricule, ['class' => 'form-control', 'required' => 'required']); ?>
 
                                     </div>
-                                    <div class="form-group col-md-6">
+                                    <!-- <div class="form-group col-md-6">
                                         <?php echo Form::label('grade', __('Grade'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
                                         <?php echo Form::text('grade', $employee->grade, ['class' => 'form-control', 'required' => 'required']); ?>
 
+                                    </div> -->
+
+                                    <div class="form-group col-md-6">
+                                        <?php echo e(Form::label('grade', __('Grade'), ['class' => 'form-label'])); ?><span class="text-danger pl-1">*</span>
+                                        <?php echo e(Form::select('grade', $grades, $grades[$employee->grade], ['class' => 'form-control ', 'required' => 'required', 'placeholder' => 'Selectionner le grade'])); ?>
+
                                     </div>
+
+                                    <div class="form-group col-md-6">
+                                        <?php echo Form::label('indice', __('Indice'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
+                                        <?php echo Form::text('indice', $employee->indice, ['class' => 'form-control', 'required' => 'required']); ?>
+
+                                    </div>                                    
                                     <div class="form-group col-md-6">
                                         <?php echo Form::label('echelle', __('Echelle'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
                                         <?php echo Form::text('echelle', $employee->echelle, ['class' => 'form-control', 'required' => 'required']); ?>
 
                                     </div>
                                     <div class="form-group col-md-6">
-                                        <?php echo Form::label('indice', __('Indice'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
-                                        <?php echo Form::text('indice', $employee->indice, ['class' => 'form-control', 'required' => 'required']); ?>
-
-                                    </div>
-                                    <div class="form-group col-md-6">
                                         <?php echo e(Form::label('branch_id', __('Branch'), ['class' => 'form-label'])); ?><span class="text-danger pl-1">*</span>
-                                        <?php echo e(Form::select('branch_id', $branches, null, ['class' => 'form-control ', 'required' => 'required', 'placeholder' => 'Select Branch'])); ?>
+                                        <?php echo e(Form::select('branch_id', $branches, null, ['class' => 'form-control ', 'placeholder' => 'Select Branch'])); ?>
 
                                     </div>
                                     <div class="form-group col-md-6">
                                         <?php echo e(Form::label('department_id', __('Select Department'), ['class' => 'form-label'])); ?><span class="text-danger pl-1">*</span>
                                         <div class="department_div">
-                                            <?php echo e(Form::select('department_id', $departments, null, ['class' => 'form-control department_id', 'id' => 'department_id', 'required' => 'required', 'id' => 'department_id'])); ?>
+                                            <?php echo e(Form::select('department_id', $departments, null, ['class' => 'form-control department_id', 'id' => 'department_id', 'id' => 'department_id'])); ?>
 
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-6">
+                                    <div class="form-group">
                                         <?php echo e(Form::label('designation_id', __('Designation'), ['class' => 'form-label'])); ?>
 
                                         
@@ -143,7 +150,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-6">
+                                    <div class="form-group">
                                         <?php echo Form::label('company_doj', 'Company Date Of Joining', ['class' => 'form-label']); ?>
 
                                         <?php echo Form::date('company_doj', null, [
@@ -296,13 +303,13 @@ unset($__errorArgs, $__bag); ?>"
 
 
                                     </div>
+
                                     <div class="form-group col-md-6">
-                                        <?php echo Form::label('bank_name', __('Bank Name'), ['class' => 'form-label']); ?>
-
-                                        <?php echo Form::text('bank_name', null, ['class' => 'form-control']); ?>
-
+                                        <?php echo e(Form::label('bank_name', __('Bank Name'), ['class' => 'form-label'])); ?><span class="text-danger pl-1">*</span>
+                                        <?php echo e(Form::select('bank_name', $banks, null, ['class' => 'form-control ', 'placeholder' => 'Selectionner une banque'])); ?>
 
                                     </div>
+
                                     <div class="form-group col-md-6">
                                         <?php echo Form::label('bank_identifier_code', __('Bank Identifier Code'), ['class' => 'form-label']); ?>
 
@@ -437,7 +444,7 @@ unset($__errorArgs, $__bag); ?>"
                 //             placeholder="Select Designation" >
                 //             </select>`;
                     var emp_selct = `<select class="form-control designation_id" name="designation_id"
-                                                 placeholder="Select Designation" required>
+                                                 placeholder="Select Designation">
                                             </select>`;
                     $('.designation_div').html(emp_selct);
                     $('.designation_id').append('<option value="">Select any Designation</option>');
@@ -472,7 +479,7 @@ unset($__errorArgs, $__bag); ?>"
                 //             placeholder="Select Department" >
                 //             </select>`;
                     var emp_selct = `<select class="form-control select department_id" name="department_id"
-                                            id="department_id" placeholder="Select Department" required>
+                                            id="department_id" placeholder="Select Department">
                                         </select>`;
                     $('.department_div').html(emp_selct);
                     $('.department_id').append('<option value="">Select any Department</option>');

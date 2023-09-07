@@ -124,6 +124,7 @@ class EmployeeController extends Controller
                     'address' => 'required',
                     'matricule' => 'required',
                     'indice' => 'required',
+                    'etatcivil' => 'required',
                     /* 'email' => 'required|unique:users',
                     'password' => 'required', */
                     /* 'department_id' => 'required',
@@ -190,6 +191,8 @@ class EmployeeController extends Controller
                 return redirect()->back()->with('error', __('Indice introuvable !'));
             }
 
+            $nbrenfant = isset($request['nbrenfant']) ? $request['nbrenfant'] : 0;
+
             $employee = Employee::create(
                 [
                     'user_id' => $user->id,
@@ -198,6 +201,9 @@ class EmployeeController extends Controller
                     'gender' => $request['gender'],
                     'grade' => $request['grade_id'],
                     'indice' => $request['indice'],
+                    'echelle' => $request['echelle'],
+                    'etatcivil' => $request['etatcivil'],
+                    'nbrenfant' => $nbrenfant,
                     'salary' => $whole_indices->salary,
                     'phone' => $request['phone'],
                     'address' => $request['address'],
@@ -261,19 +267,63 @@ class EmployeeController extends Controller
 
             $officers = ['S/LT', 'LT', 'CNE', 'CDT', 'LT/COL'];
 
+            /* ------ Calcule des montants ------ */
+
+            // Sujet Police
+            $sujpol = \DB::table('tab_defaults')->where('name', 'SujetPolice')->first()->amount_1;
+
+            // MensuelleRespPart et Mission Special
+            /* $menRP = in_array($request->grade, $officers) == false ? \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_2; */
+
+            if (in_array($request->grade, $officers)) {
+                $menRP = \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_2;
+            } else {
+                $menRP =  \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_1;
+            }
+
+            /*  $mSpe = in_array($request->grade, $officers) == false ? \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_2; */
+
+            if (in_array($request->grade, $officers)) {
+                $mSpe = \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_2;
+            } else {
+                $mSpe = \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_1;
+            }
+
+            // Salaire et allocations
+            $salary_allowances = $whole_indices->salary + $sujpol + $menRP + $mSpe + 0 + 0;
+
+            // CNR
+            $db_cnr = intval(\DB::table('tab_defaults')->where('name', 'CNR')->first()->amount_1);
+            $cnr = round(floatval(floatval($whole_indices->salary / 100) * $db_cnr));
+
+            // Abatt
+            $db_abatt = intval(\DB::table('tab_defaults')->where('name', 'Abatt')->first()->amount_1);
+            $abatt = round(floatval((($whole_indices->salary + $sujpol + $menRP + $mSpe) / 100) * $db_abatt));
+
+            // Montant impôt
+            $montimpot = $salary_allowances - $cnr - $abatt;
+
+            // Retenu Impôt
+            $retImp = ListImpot::select('montant')->where('tranche_basse', '<=', $montimpot)->where('tranche_haute', '>=', $montimpot)->first()->montant;
+
+            // Retenu Medical
+            $retMed = round(floatval(floatval(($salary_allowances - $abatt) / 100) * 2));
+
             /* ------ Enregistrement d'autre paiement ------ */
 
             $new_otherPayment                   = new OtherPayment();
             $new_otherPayment->employee_id      = $employee->id;
             $new_otherPayment->title            = 'All,eau';
-            $new_otherPayment->amount           = '620';
+            $new_otherPayment->type           = 'fixed';
+            $new_otherPayment->amount           = $request['etatcivil'] == 'Célibataire' ? \DB::table('tab_defaults')->where('name', 'All,eau')->first()->amount_1: \DB::table('tab_defaults')->where('name', 'All,eau')->first()->amount_2;
             $new_otherPayment->created_by       = \Auth::user()->creatorId();
             $new_otherPayment->save();
 
             $new_otherPayment                   = new OtherPayment();
             $new_otherPayment->employee_id      = $employee->id;
             $new_otherPayment->title            = 'Press,Fam';
-            $new_otherPayment->amount           = '0';
+            $new_otherPayment->type           = 'fixed';
+            $new_otherPayment->amount           = $request['etatcivil'] == 'Célibataire' ? 0 : 1400 * $nbrenfant;
             $new_otherPayment->created_by       = \Auth::user()->creatorId();
             $new_otherPayment->save();
 
@@ -281,13 +331,15 @@ class EmployeeController extends Controller
             $new_otherPayment->employee_id      = $employee->id;
             $new_otherPayment->title            = 'Pm forfaitaire';
             $new_otherPayment->amount           = '0';
+            $new_otherPayment->type           = 'fixed';
             $new_otherPayment->created_by       = \Auth::user()->creatorId();
             $new_otherPayment->save();
 
             $new_otherPayment                   = new OtherPayment();
             $new_otherPayment->employee_id      = $employee->id;
             $new_otherPayment->title            = 'PFranc';
-            $new_otherPayment->amount           = '27000';
+            $new_otherPayment->type           = 'fixed';
+            $new_otherPayment->amount           = \DB::table('tab_defaults')->where('name', 'Pfranc')->first()->amount_1;
             $new_otherPayment->created_by       = \Auth::user()->creatorId();
             $new_otherPayment->save();
 
@@ -317,7 +369,7 @@ class EmployeeController extends Controller
                         $new_allowance->employee_id      = $employee->id;
                         $new_allowance->title            = $allowance->name;
                         $new_allowance->allowance_option      = '2';
-                        $new_allowance->amount           = '5354';
+                        $new_allowance->amount           = $sujpol;
                         $new_allowance->type             = 'fixed';
                         $new_allowance->created_by       = \Auth::user()->creatorId();
                         $new_allowance->save();
@@ -328,7 +380,7 @@ class EmployeeController extends Controller
                         $new_allowance->employee_id      = $employee->id;
                         $new_allowance->title            = $allowance->name;
                         $new_allowance->allowance_option      = '3';
-                        $new_allowance->amount           = in_array($request['grade'], $officers) ? '28624' : '5333';
+                        $new_allowance->amount           = $menRP;
                         $new_allowance->type           = 'fixed';
                         $new_allowance->created_by       = \Auth::user()->creatorId();
                         $new_allowance->save();
@@ -339,7 +391,7 @@ class EmployeeController extends Controller
                         $new_allowance->employee_id      = $employee->id;
                         $new_allowance->title            = $allowance->name;
                         $new_allowance->allowance_option      = '4';
-                        $new_allowance->amount           = in_array($request['grade'], $officers) ? '0' : '8041';
+                        $new_allowance->amount           = $mSpe;
                         $new_allowance->type           = 'fixed';
                         $new_allowance->created_by       = \Auth::user()->creatorId();
                         $new_allowance->save();
@@ -378,8 +430,8 @@ class EmployeeController extends Controller
                         $new_deduction->employee_id      = $employee->id;
                         $new_deduction->title            = $deduction->name;
                         $new_deduction->deduction_option      = '1';
-                        $new_deduction->amount           = '7';
-                        $new_deduction->type           = 'percentage';
+                        $new_deduction->amount           = $cnr;
+                        $new_deduction->type           = 'fixed';
                         $new_deduction->created_by       = \Auth::user()->creatorId();
                         $new_deduction->save();
                         break;
@@ -389,8 +441,8 @@ class EmployeeController extends Controller
                         $new_deduction->employee_id      = $employee->id;
                         $new_deduction->title            = $deduction->name;
                         $new_deduction->deduction_option      = '2';
-                        $new_deduction->amount           = '5';
-                        $new_deduction->type           = 'percentage';
+                        $new_deduction->amount           = $abatt;
+                        $new_deduction->type           = 'fixed';
                         $new_deduction->created_by       = \Auth::user()->creatorId();
                         $new_deduction->save();
                         break;
@@ -399,8 +451,8 @@ class EmployeeController extends Controller
                         $new_deduction                   = new SaturationDeduction();
                         $new_deduction->employee_id      = $employee->id;
                         $new_deduction->title            = $deduction->name;
-                        $new_deduction->deduction_option      = '3';
-                        $new_deduction->amount           = ListImpot::select('montant')->where('tranche_basse', '<=', $whole_indices->salary)->where('tranche_haute', '>=', $whole_indices->salary)->first()->montant;
+                        $new_deduction->deduction_option      = '18';
+                        $new_deduction->amount           = $montimpot;
                         $new_deduction->type           = 'fixed';
                         $new_deduction->created_by       = \Auth::user()->creatorId();
                         $new_deduction->save();
@@ -411,7 +463,7 @@ class EmployeeController extends Controller
                         $new_deduction->employee_id      = $employee->id;
                         $new_deduction->title            = $deduction->name;
                         $new_deduction->deduction_option      = '4';
-                        $new_deduction->amount           = '400';
+                        $new_deduction->amount           = $retImp;
                         $new_deduction->type           = 'fixed';
                         $new_deduction->created_by       = \Auth::user()->creatorId();
                         $new_deduction->save();
@@ -422,8 +474,8 @@ class EmployeeController extends Controller
                         $new_deduction->employee_id      = $employee->id;
                         $new_deduction->title            = $deduction->name;
                         $new_deduction->deduction_option      = '5';
-                        $new_deduction->amount           = '2';
-                        $new_deduction->type           = 'percentage';
+                        $new_deduction->amount           = '400';
+                        $new_deduction->type           = 'fixed';
                         $new_deduction->created_by       = \Auth::user()->creatorId();
                         $new_deduction->save();
                         break;
@@ -433,7 +485,7 @@ class EmployeeController extends Controller
                         $new_deduction->employee_id      = $employee->id;
                         $new_deduction->title            = $deduction->name;
                         $new_deduction->deduction_option      = '6';
-                        $new_deduction->amount           = '0';
+                        $new_deduction->amount           = $retMed;
                         $new_deduction->type           = 'fixed';
                         $new_deduction->created_by       = \Auth::user()->creatorId();
                         $new_deduction->save();
@@ -466,7 +518,7 @@ class EmployeeController extends Controller
                         $new_deduction->employee_id      = $employee->id;
                         $new_deduction->title            = $deduction->name;
                         $new_deduction->deduction_option      = '9';
-                        $new_deduction->amount           = '1000';
+                        $new_deduction->amount           = '0';
                         $new_deduction->type           = 'fixed';
                         $new_deduction->created_by       = \Auth::user()->creatorId();
                         $new_deduction->save();
@@ -477,7 +529,7 @@ class EmployeeController extends Controller
                         $new_deduction->employee_id      = $employee->id;
                         $new_deduction->title            = $deduction->name;
                         $new_deduction->deduction_option      = '10';
-                        $new_deduction->amount           = '0';
+                        $new_deduction->amount           = '1000';
                         $new_deduction->type           = 'fixed';
                         $new_deduction->created_by       = \Auth::user()->creatorId();
                         $new_deduction->save();
@@ -499,6 +551,17 @@ class EmployeeController extends Controller
                         $new_deduction->employee_id      = $employee->id;
                         $new_deduction->title            = $deduction->name;
                         $new_deduction->deduction_option      = '12';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '13':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employee->id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '13';
                         $new_deduction->amount           = '0';
                         $new_deduction->type           = 'fixed';
                         $new_deduction->created_by       = \Auth::user()->creatorId();
@@ -555,7 +618,36 @@ class EmployeeController extends Controller
             $employee     = Employee::find($id);
             $employeesId  = \Auth::user()->employeeIdFormat($employee->employee_id);
 
-            return view('employee.edit', compact('employee', 'employeesId', 'branches', 'departments', 'designations', 'documents'));
+            $grades = [
+                'LT/COL' => 'LT/COL',
+                'CDT' => 'CDT',
+                'CNE' => 'CNE',
+                'LT' => 'LT',
+                'S/LT' => 'S/LT',
+                'ASPIRANT' => 'ASPIRANT',
+                'MAJOR' => 'MAJOR',
+                'A/C' => 'A/C',
+                'ADJ' => 'ADJ',
+                'S/C' => 'S/C',
+                'SGT' => 'SGT',
+                'C/C' => 'C/C',
+                'CAP' => 'CAP'
+            ];
+
+            $banks = [
+                'EXIM' => 'EXIM',
+                'BDCD' => 'BDCD',
+                'BCIMR' => 'BCIMR',
+                'IIB' => 'IIB',
+                'IBB' => 'IBB',
+                'CAC' => 'CAC',
+                'SALAM BANK' => 'SALAM BANK',
+                'SABA' => 'SABA',
+                'EAST AFRICA' => 'EAST AFRICA',
+                'BOA' => 'BOA'
+            ];
+
+            return view('employee.edit', compact('employee', 'employeesId', 'grades', 'banks', 'branches', 'departments', 'designations', 'documents'));
         } else {
             return redirect()->back()->with('error', __('Permission denied.'));
         }
@@ -570,7 +662,7 @@ class EmployeeController extends Controller
                     'name' => 'required',
                     'dob' => 'required',
                     'gender' => 'required',
-                    'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9',
+                    'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/',
                     'address' => 'required',
                     'matricule' => 'required',
                     'document.*' => 'required',
@@ -629,12 +721,93 @@ class EmployeeController extends Controller
                 }
             }
 
+            // Lire les indices
+            $whole_indices = \DB::table('indices')->select('salary')->where('indice', '=', $request['indice'])->first();
+
+            if ($whole_indices == null) {
+                return redirect()->back()->with('error', __('Indice introuvable !'));
+            }
+
+            // Enregistrer les modifications
             $employee = Employee::findOrFail($id);
+            // Modifier son salaire selon son indice
+            $request['salary'] = $whole_indices->salary;
             $input    = $request->all();
             $employee->fill($input)->save();
-            if ($request->salary) {
-                return redirect()->route('setsalary.index')->with('success', 'Employee successfully updated.');
+
+            // Si l'employer est enregistrer avec succès
+
+            $officers = ['S/LT', 'LT', 'CNE', 'CDT', 'LT/COL'];
+
+            /* ------ Calcule des montants ------ */
+
+            // Sujet Police
+            $sujpol = \DB::table('tab_defaults')->where('name', 'SujetPolice')->first()->amount_1;
+
+            // MensuelleRespPart et Mission Special
+            /* $menRP = in_array($request->grade, $officers) == false ? \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_2; */
+
+            if (in_array($request->grade, $officers)) {
+                $menRP = \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_2;
+            } else {
+                $menRP =  \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_1;
             }
+
+            /*  $mSpe = in_array($request->grade, $officers) == false ? \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_2; */
+
+            if (in_array($request->grade, $officers)) {
+                $mSpe = \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_1;
+            } else {
+                $mSpe = \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_2;
+            }
+
+            // Salaire et allocations
+            $salary_allowances = $whole_indices->salary + $sujpol + $menRP + $mSpe + 0 + 0;
+
+            // CNR
+            $db_cnr = intval(\DB::table('tab_defaults')->where('name', 'CNR')->first()->amount_1);
+            $cnr = round(floatval(floatval($whole_indices->salary / 100) * $db_cnr));
+
+            // Abatt
+            $db_abatt = intval(\DB::table('tab_defaults')->where('name', 'Abatt')->first()->amount_1);
+            $abatt = ($whole_indices->salary + $sujpol + $menRP + $mSpe) >= 80000 ? round(floatval((($whole_indices->salary + $sujpol + $menRP + $mSpe) / 100) * $db_abatt)) : 0;
+
+            // Montant impôt
+            $montimpot = $salary_allowances - $cnr - $abatt;
+
+            // Retenu Impôt
+            $retImp = ListImpot::select('montant')->where('tranche_basse', '<=', $montimpot)->where('tranche_haute', '>=', $montimpot)->first()->montant;
+
+            // Retenu Medical
+            $retMed = round(floatval(floatval(($salary_allowances - $abatt) / 100) * 2));
+
+            // Deductions
+            SaturationDeduction::where('employee_id', $id)->where('deduction_option', 1)->update([
+                'amount' => $cnr
+            ]);
+            SaturationDeduction::where('employee_id', $id)->where('deduction_option', 2)->update([
+                'amount' => $abatt
+            ]);
+            SaturationDeduction::where('employee_id', $id)->where('deduction_option', 3)->update([
+                'amount' => $retImp
+            ]);
+            SaturationDeduction::where('employee_id', $id)->where('deduction_option', 5)->update([
+                'amount' => $retMed
+            ]);
+            SaturationDeduction::where('employee_id', $id)->where('deduction_option', 18)->update([
+                'amount' => $montimpot
+            ]);
+
+            // Allocations
+            Allowance::where('employee_id', $id)->where('allowance_option', 3)->update([
+                'amount' => $menRP
+            ]);
+            Allowance::where('employee_id', $id)->where('allowance_option', 4)->update([
+                'amount' => $mSpe
+            ]);
+            // die(json_encode(($whole_indices->salary + $sujpol + $menRP + $mSpe)));
+
+            return redirect()->route('setsalary.index')->with('success', 'Employee successfully updated.');
 
             if (\Auth::user()->type != 'employee') {
                 return redirect()->route('employee.index')->with('success', 'Employee successfully updated.');
@@ -851,7 +1024,15 @@ class EmployeeController extends Controller
 
             $employee = $employees[$i];
 
-            $employeeByEmail = Employee::where('email', $employee[5])->first();
+
+            // Lire les indices
+            $whole_indices = \DB::table('indices')->select('salary')->where('indice', '=', $employee[5])->first();
+            if ($whole_indices == null) {
+                \DB::table('employees')->truncate();
+                return redirect()->back()->with('error', __('Indice introuvable !'));
+            }
+
+            /* $employeeByEmail = Employee::where('email', $employee[5])->first();
             $userByEmail = User::where('email', $employee[5])->first();
 
 
@@ -859,41 +1040,46 @@ class EmployeeController extends Controller
                 $employeeData = $employeeByEmail;
             } else {
 
-                $user = new User();
-                $user->name = $employee[0];
-                $user->email = $employee[5];
-                $user->password = Hash::make($employee[6]);
-                $user->type = 'employee';
-                $user->lang = 'en';
-                $user->created_by = \Auth::user()->creatorId();
-                $user->email_verified_at = date("Y-m-d H:i:s");
-                $user->save();
-                $user->assignRole('Employee');
+                
+            } */
+            $user = new User();
+            $user->name = $employee[0];
+            $user->email = ""; // $employee[5];
+            $user->password = ""; // Hash::make($employee[6]);
+            $user->type = 'employee';
+            $user->lang = 'en';
+            $user->created_by = \Auth::user()->creatorId();
+            $user->email_verified_at = date("Y-m-d H:i:s");
+            $user->save();
+            $user->assignRole('Employee');
 
-                $employeeData = new Employee();
-                $employeeData->employee_id      = $this->employeeNumber();
-                $employeeData->user_id             = $user->id;
-            }
+            $employeeData = new Employee();
+            $employeeData->employee_id      = $this->employeeNumber();
+            $employeeData->user_id             = $user->id;
 
 
             $employeeData->name                = $employee[0];
             $employeeData->dob                 = $employee[1];
             $employeeData->gender              = $employee[2];
             $employeeData->phone               = $employee[3];
-            $employeeData->address             = $employee[4];
-            $employeeData->email               = $employee[5];
-            $employeeData->password            = Hash::make($employee[6]);
+            $employeeData->grade             = $employee[4];
+            $employeeData->indice             = $employee[5];
+            $employeeData->echelle             = $employee[6];
+            $employeeData->address             = $employee[7];
+            $employeeData->email               = ""; // $employee[5];
+            $employeeData->salary               = $whole_indices->salary;
+            $employeeData->password            = ""; // Hash::make($employee[6]);
             $employeeData->employee_id         = $this->employeeNumber();
-            $employeeData->branch_id           = $employee[8];
-            $employeeData->department_id       = $employee[9];
-            $employeeData->designation_id      = $employee[10];
-            $employeeData->company_doj         = $employee[11];
-            $employeeData->account_holder_name = $employee[12];
-            $employeeData->account_number      = $employee[13];
-            $employeeData->bank_name           = $employee[14];
-            $employeeData->bank_identifier_code = $employee[15];
-            $employeeData->branch_location     = $employee[16];
-            $employeeData->tax_payer_id        = $employee[17];
+            $employeeData->branch_id           = ""; // $employee[8];
+            $employeeData->department_id       = ""; // $employee[9];
+            $employeeData->designation_id      = ""; // $employee[10];
+            $employeeData->company_doj         = $employee[8];
+            $employeeData->account_holder_name = ""; // $employee[12];
+            $employeeData->account_number      = ""; // $employee[13];
+            $employeeData->bank_name           = $employee[9];
+            $employeeData->bank_identifier_code = ""; // $employee[15];
+            $employeeData->branch_location     = ""; // $employee[16];
+            $employeeData->tax_payer_id        = ""; // $employee[17];
             $employeeData->created_by          = \Auth::user()->creatorId();
 
             if (empty($employeeData)) {
@@ -901,7 +1087,328 @@ class EmployeeController extends Controller
             } else {
                 $employeeData->save();
             }
+
+            /* ------------------------------------------------ */ /* ------ Initialisation automatique ------ */
+
+            $declared_allowance = AllowanceOption::all();
+            $declared_deduction = DeductionOption::all();
+            $declared_loans = LoanOption::all();
+
+            $officers = ['S/LT', 'LT', 'CNE', 'CDT', 'LT/COL'];
+
+            /* ------ Calcule des montants ------ */
+
+            // Sujet Police
+            $sujpol = \DB::table('tab_defaults')->where('name', 'SujetPolice')->first()->amount_1;
+
+            // MensuelleRespPart et Mission Special
+            /* $menRP = in_array($request->grade, $officers) == false ? \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_2; */
+
+            if (in_array($request->grade, $officers)) {
+                $menRP = \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_2;
+            } else {
+                $menRP =  \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_1;
+            }
+
+            /*  $mSpe = in_array($request->grade, $officers) == false ? \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_2; */
+
+            if (in_array($request->grade, $officers)) {
+                $mSpe = \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_2;
+            } else {
+                $mSpe = \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_1;
+            }
+
+            // Salaire et allocations
+            $salary_allowances = $whole_indices->salary + $sujpol + $menRP + $mSpe + 0 + 0;
+
+            // CNR
+            $db_cnr = intval(\DB::table('tab_defaults')->where('name', 'CNR')->first()->amount_1);
+            $cnr = round(floatval(floatval($whole_indices->salary / 100) * $db_cnr));
+
+            // Abatt
+            $db_abatt = intval(\DB::table('tab_defaults')->where('name', 'Abatt')->first()->amount_1);
+            $abatt = round(floatval((($whole_indices->salary + $sujpol + $menRP + $mSpe) / 100) * $db_abatt));
+
+            // Montant impôt
+            $montimpot = $salary_allowances - $cnr - $abatt;
+
+            // Retenu Impôt
+            $retImp = ListImpot::select('montant')->where('tranche_basse', '<=', $montimpot)->where('tranche_haute', '>=', $montimpot)->first()->montant;
+
+            // Retenu Medical
+            $retMed = round(floatval(floatval(($salary_allowances - $abatt) / 100) * 2));
+
+            /* ------ Enregistrement d'autre paiement ------ */
+
+            $new_otherPayment                   = new OtherPayment();
+            $new_otherPayment->employee_id      = $employeeData->employee_id;
+            $new_otherPayment->title            = 'All,eau';
+            $new_otherPayment->amount           = \DB::table('tab_defaults')->where('name', 'All,eau')->first()->amount_1;
+            $new_otherPayment->created_by       = \Auth::user()->creatorId();
+            $new_otherPayment->save();
+
+            $new_otherPayment                   = new OtherPayment();
+            $new_otherPayment->employee_id      = $employeeData->employee_id;
+            $new_otherPayment->title            = 'Press,Fam';
+            $new_otherPayment->amount           = '0';
+            $new_otherPayment->created_by       = \Auth::user()->creatorId();
+            $new_otherPayment->save();
+
+            $new_otherPayment                   = new OtherPayment();
+            $new_otherPayment->employee_id      = $employeeData->employee_id;
+            $new_otherPayment->title            = 'Pm forfaitaire';
+            $new_otherPayment->amount           = '0';
+            $new_otherPayment->created_by       = \Auth::user()->creatorId();
+            $new_otherPayment->save();
+
+            $new_otherPayment                   = new OtherPayment();
+            $new_otherPayment->employee_id      = $employeeData->employee_id;
+            $new_otherPayment->title            = 'PFranc';
+            $new_otherPayment->amount           = \DB::table('tab_defaults')->where('name', 'Pfranc')->first()->amount_1;
+            $new_otherPayment->created_by       = \Auth::user()->creatorId();
+            $new_otherPayment->save();
+
+            /* ------ Enregistrement des crédits ------ */
+
+            foreach ($declared_loans as $loan) {
+                switch ($loan->id) {
+                    case '1':
+                        $new_loan                   = new Loan();
+                        $new_loan->employee_id      = $employeeData->employee_id;
+                        $new_loan->title            = $loan->name;
+                        $new_loan->loan_option      = '1';
+                        $new_loan->amount           = '0';
+                        $new_loan->type           = 'fixed';
+                        $new_loan->created_by       = \Auth::user()->creatorId();
+                        $new_loan->save();
+                        break;
+                }
+            }
+
+            /* ------ Enregistrement des allocations ------ */
+
+            foreach ($declared_allowance as $allowance) {
+                switch ($allowance->id) {
+                    case '2':
+                        $new_allowance                   = new Allowance();
+                        $new_allowance->employee_id      = $employeeData->employee_id;
+                        $new_allowance->title            = $allowance->name;
+                        $new_allowance->allowance_option      = '2';
+                        $new_allowance->amount           = $sujpol;
+                        $new_allowance->type             = 'fixed';
+                        $new_allowance->created_by       = \Auth::user()->creatorId();
+                        $new_allowance->save();
+                        break;
+
+                    case '3':
+                        $new_allowance                   = new Allowance();
+                        $new_allowance->employee_id      = $employeeData->employee_id;
+                        $new_allowance->title            = $allowance->name;
+                        $new_allowance->allowance_option      = '3';
+                        $new_allowance->amount           = $menRP;
+                        $new_allowance->type           = 'fixed';
+                        $new_allowance->created_by       = \Auth::user()->creatorId();
+                        $new_allowance->save();
+                        break;
+
+                    case '4':
+                        $new_allowance                   = new Allowance();
+                        $new_allowance->employee_id      = $employeeData->employee_id;
+                        $new_allowance->title            = $allowance->name;
+                        $new_allowance->allowance_option      = '4';
+                        $new_allowance->amount           = $mSpe;
+                        $new_allowance->type           = 'fixed';
+                        $new_allowance->created_by       = \Auth::user()->creatorId();
+                        $new_allowance->save();
+                        break;
+
+                    case '5':
+                        $new_allowance                   = new Allowance();
+                        $new_allowance->employee_id      = $employeeData->employee_id;
+                        $new_allowance->title            = $allowance->name;
+                        $new_allowance->allowance_option      = '5';
+                        $new_allowance->amount           = '0';
+                        $new_allowance->type           = 'fixed';
+                        $new_allowance->created_by       = \Auth::user()->creatorId();
+                        $new_allowance->save();
+                        break;
+
+                    case '6':
+                        $new_allowance                   = new Allowance();
+                        $new_allowance->employee_id      = $employeeData->employee_id;
+                        $new_allowance->title            = $allowance->name;
+                        $new_allowance->allowance_option      = '6';
+                        $new_allowance->amount           = '0';
+                        $new_allowance->type           = 'fixed';
+                        $new_allowance->created_by       = \Auth::user()->creatorId();
+                        $new_allowance->save();
+                        break;
+                }
+            }
+
+            /* ------ Enregistrement des déductions ------ */
+
+            foreach ($declared_deduction as $deduction) {
+                switch ($deduction->id) {
+                    case '1':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '1';
+                        $new_deduction->amount           = $cnr;
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '2':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '2';
+                        $new_deduction->amount           = $abatt;
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '3':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '18';
+                        $new_deduction->amount           = $montimpot;
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '4':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '4';
+                        $new_deduction->amount           = $retImp;
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '5':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '5';
+                        $new_deduction->amount           = '400';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '6':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '6';
+                        $new_deduction->amount           = $retMed;
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '7':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '7';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '8':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '8';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '9':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '9';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '10':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '10';
+                        $new_deduction->amount           = '1000';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '11':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '11';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '12':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '12';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '13':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '13';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+
+                    case '14':
+                        $new_deduction                   = new SaturationDeduction();
+                        $new_deduction->employee_id      = $employeeData->employee_id;
+                        $new_deduction->title            = $deduction->name;
+                        $new_deduction->deduction_option      = '14';
+                        $new_deduction->amount           = '0';
+                        $new_deduction->type           = 'fixed';
+                        $new_deduction->created_by       = \Auth::user()->creatorId();
+                        $new_deduction->save();
+                        break;
+                }
+            }
+
+            /* ------------------------------------------------ */
         }
+
 
         $errorRecord = [];
         if (empty($errorArray)) {

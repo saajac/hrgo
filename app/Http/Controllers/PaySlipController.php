@@ -157,8 +157,9 @@ class PaySlipController extends Controller
                     }
 
                     $retmedi      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', '=', 5)->where('type', '=', 'percentage')->get();
-                    $abatt      = SaturationDeduction::where('employee_id', '=', $employee->id)->get();
-                    die(json_encode($abatt));
+                    $abatt      = SaturationDeduction::where('employee_id', '=', $employee->id)->where('deduction_option', 2)->get();
+                    header('Content-type: application/json');
+
                     $abatt = $abatt[0]->amount;
                     if (count($retmedi) > 0) {
                         $retmedi = $retmedi[0]->amount;

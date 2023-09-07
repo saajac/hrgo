@@ -57,7 +57,7 @@
                                     <div class="form-group">
                                         <?php echo Form::label('gender', __('Gender'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
                                         <div class="d-flex radio-check">
-                                            <div class="custom-control custom-radio custom-control-inline">
+                                            <div class="custom-control custom-radio custom-control-inline" style="margin-right: 15px;">
                                                 <input type="radio" id="g_male" value="Male" name="gender"
                                                     class="form-check-input">
                                                 <label class="form-check-label " for="g_male"><?php echo e(__('Male')); ?></label>
@@ -69,6 +69,29 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <?php echo Form::label('gender', __('Etat Civil'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
+                                        <div class="d-flex radio-check">
+                                            <div class="custom-control custom-radio custom-control-inline" style="margin-right: 15px;">
+                                                <input type="radio" id="single" value="Célibataire" name="etatcivil"
+                                                    class="form-check-input">
+                                                <label class="form-check-label " for="single"><?php echo e(__('Célibataire')); ?></label>
+                                            </div>
+                                            <div class="custom-control custom-radio ms-1 custom-control-inline">
+                                                <input type="radio" id="maried" value="Marié(e)" name="etatcivil"
+                                                    class="form-check-input">
+                                                <label class="form-check-label " for="maried"><?php echo e(__('Marié(e)')); ?></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <?php echo Form::label('nbrenfant', __('Nombre d\'enfants'), ['class' => 'form-label']); ?>
+
+                                    <?php echo Form::number('nbrenfant', old('nbrenfant'), ['class' => 'form-control', 'placeholder' => 'Saisir le nombre d\'enfant']); ?>
+
                                 </div>
                                 <!-- <div class="form-group col-md-6">
                                     <?php echo Form::label('email', __('Email'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>

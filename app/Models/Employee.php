@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Mockery\Generator\StringManipulation\Pass\Pass;
 use SebastianBergmann\CodeCoverage\Percentage;
 
 class Employee extends Model
@@ -20,6 +21,8 @@ class Employee extends Model
         'indice',
         'echelle',
         'matricule',
+        'etatcivil',
+        'nbrenfant',
         'email',
         'password',
         'employee_id',
@@ -57,12 +60,13 @@ class Employee extends Model
         $allowances      = Allowance::where('employee_id', '=', $this->id)->get();
         $total_allowance = 0;
         foreach ($allowances as $allowance) {
-            if ($allowance->type == 'percentage') {
+            /* if ($allowance->type == 'percentage') {
                 $employee          = Employee::find($allowance->employee_id);
                 $total_allowance  = $allowance->amount * $employee->salary / 100  + $total_allowance;
             } else {
                 $total_allowance = $allowance->amount + $total_allowance;
-            }
+            } */
+            $total_allowance = $allowance->amount + $total_allowance;
         }
 
 
@@ -97,11 +101,16 @@ class Employee extends Model
         //Saturation Deduction
         $saturation_deductions      = SaturationDeduction::where('employee_id', '=', $this->id)->get();
         $total_saturation_deduction = 0;
+        $montimp = 0;
         foreach ($saturation_deductions as $saturation_deduction) {
-            if ($saturation_deduction->type == 'percentage') {
-                $employee          = Employee::find($saturation_deduction->employee_id);
-                $total_saturation_deduction  = $saturation_deduction->amount * $employee->salary / 100 + $total_saturation_deduction;
-            } else {
+            $saturation_deduction->deduction_option == 18 ? $montimp = $saturation_deduction->amount : "";
+            if ($saturation_deduction->title != 'Abatt' && $saturation_deduction->title != 'CNR' && $saturation_deduction->title != 'Mont Impôt') {
+                /* if ($saturation_deduction->type == 'percentage') {
+                    $employee          = Employee::find($saturation_deduction->employee_id);
+                    $total_saturation_deduction  = $saturation_deduction->amount * $employee->salary / 100 + $total_saturation_deduction;
+                } else {
+                    $total_saturation_deduction = $saturation_deduction->amount + $total_saturation_deduction;
+                } */
                 $total_saturation_deduction = $saturation_deduction->amount + $total_saturation_deduction;
             }
         }
@@ -129,13 +138,16 @@ class Employee extends Model
 
 
         //Net Salary Calculate
-        $advance_salary = $total_allowance + $total_commission - $total_loan - $total_saturation_deduction + $total_other_payment + $total_over_time;
+        // $advance_salary = $total_allowance + $total_commission - $total_loan - $total_saturation_deduction + $total_other_payment + $total_over_time;
+
+        // New net salary calculation
+        $advance_salary = $montimp - $total_saturation_deduction - $total_loan + $total_other_payment;
 
         $employee       = Employee::where('id', '=', $this->id)->first();
 
-        $net_salary     = (!empty($employee->salary) ? $employee->salary : 0) + $advance_salary;
+        // $net_salary     = (!empty($employee->salary) ? $employee->salary : 0) + $advance_salary;
 
-        return $net_salary;
+        return $advance_salary;
     }
 
     public static function allowance($id)
