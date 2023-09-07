@@ -315,7 +315,7 @@ class EmployeeController extends Controller
             $new_otherPayment->employee_id      = $employee->id;
             $new_otherPayment->title            = 'All,eau';
             $new_otherPayment->type           = 'fixed';
-            $new_otherPayment->amount           = $request['etatcivil'] == 'Célibataire' ? \DB::table('tab_defaults')->where('name', 'All,eau')->first()->amount_1: \DB::table('tab_defaults')->where('name', 'All,eau')->first()->amount_2;
+            $new_otherPayment->amount           = $request['etatcivil'] == 'Célibataire' ? \DB::table('tab_defaults')->where('name', 'All,eau')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'All,eau')->first()->amount_2;
             $new_otherPayment->created_by       = \Auth::user()->creatorId();
             $new_otherPayment->save();
 
@@ -1066,6 +1066,8 @@ class EmployeeController extends Controller
             $employeeData->indice             = $employee[5];
             $employeeData->echelle             = $employee[6];
             $employeeData->address             = $employee[7];
+            $employeeData->etatcivil             = $employee[8];
+            $employeeData->nbrenfant             = $employee[9];
             $employeeData->email               = ""; // $employee[5];
             $employeeData->salary               = $whole_indices->salary;
             $employeeData->password            = ""; // Hash::make($employee[6]);
@@ -1081,6 +1083,8 @@ class EmployeeController extends Controller
             $employeeData->branch_location     = ""; // $employee[16];
             $employeeData->tax_payer_id        = ""; // $employee[17];
             $employeeData->created_by          = \Auth::user()->creatorId();
+
+            $nbrenfant = isset($employee[9]) ? $employee[9] : 0;
 
             if (empty($employeeData)) {
                 $errorArray[] = $employeeData;
@@ -1143,20 +1147,23 @@ class EmployeeController extends Controller
             $new_otherPayment                   = new OtherPayment();
             $new_otherPayment->employee_id      = $employeeData->employee_id;
             $new_otherPayment->title            = 'All,eau';
-            $new_otherPayment->amount           = \DB::table('tab_defaults')->where('name', 'All,eau')->first()->amount_1;
+            $new_otherPayment->type           = 'fixed';
+            $new_otherPayment->amount           = $employeeData[8] == 'Célibataire' ? \DB::table('tab_defaults')->where('name', 'All,eau')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'All,eau')->first()->amount_2;
             $new_otherPayment->created_by       = \Auth::user()->creatorId();
             $new_otherPayment->save();
 
             $new_otherPayment                   = new OtherPayment();
             $new_otherPayment->employee_id      = $employeeData->employee_id;
             $new_otherPayment->title            = 'Press,Fam';
-            $new_otherPayment->amount           = '0';
+            $new_otherPayment->type           = 'fixed';
+            $new_otherPayment->amount           = $request['etatcivil'] == 'Célibataire' ? 0 : 1400 * $nbrenfant;
             $new_otherPayment->created_by       = \Auth::user()->creatorId();
             $new_otherPayment->save();
 
             $new_otherPayment                   = new OtherPayment();
             $new_otherPayment->employee_id      = $employeeData->employee_id;
             $new_otherPayment->title            = 'Pm forfaitaire';
+            $new_otherPayment->type           = 'fixed';
             $new_otherPayment->amount           = '0';
             $new_otherPayment->created_by       = \Auth::user()->creatorId();
             $new_otherPayment->save();
@@ -1164,6 +1171,7 @@ class EmployeeController extends Controller
             $new_otherPayment                   = new OtherPayment();
             $new_otherPayment->employee_id      = $employeeData->employee_id;
             $new_otherPayment->title            = 'PFranc';
+            $new_otherPayment->type           = 'fixed';
             $new_otherPayment->amount           = \DB::table('tab_defaults')->where('name', 'Pfranc')->first()->amount_1;
             $new_otherPayment->created_by       = \Auth::user()->creatorId();
             $new_otherPayment->save();
