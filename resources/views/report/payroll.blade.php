@@ -116,7 +116,7 @@
 @section('action-button')
     <div class="float-end">
     <a href="{{ route('payslip.exportall', ['month' => isset($_GET['month']) ? $_GET['month'] : date('Y-m')]) }}"
-            class="btn btn-sm btn-primary float-end" data-bs-toggle="tooltip" style="margin-left: 5px;">
+            class="btn btn-sm btn-primary float-end" data-bs-toggle="tooltip" title="{{ __('EG Salaire') }}" style="margin-left: 5px;">
             <i class="ti ti-file-download"></i>
         </a>
         <a href="#" class="btn btn-sm btn-primary" onclick="saveAsPDF()" data-bs-toggle="tooltip"

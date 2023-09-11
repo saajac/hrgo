@@ -1,19 +1,29 @@
 @php
-    // $logo = asset(Storage::url('uploads/logo/'));
-    $logo = \App\Models\Utility::get_file('uploads/logo/');
-    
-    $company_logo = Utility::getValByName('company_logo');
+// $logo = asset(Storage::url('uploads/logo/'));
+$logo = \App\Models\Utility::get_file('uploads/logo/');
+
+$company_logo = Utility::getValByName('company_logo');
 @endphp
+@php
+$otherPayments = $payslipDetail['earning']['otherPayment'][0]->other_payment;
+$data = [];
+@endphp
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+    * {
+        font-size: 15px;
+    }
+</style>
+
 <div class="modal-body">
     <div class="text-md-end mb-2">
-        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom"
-            title="{{ __('Download') }}" onclick="saveAsPDF()"><span class="fa fa-download"></span></a>
+        <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ __('Download') }}" onclick="saveAsPDF()"><span class="fa fa-download"></span></a>
         @if (\Auth::user()->type == 'company' || \Auth::user()->type == 'hr')
-            <a title="Mail Send" href="{{ route('payslip.send', [$employee->id, $payslip->salary_month]) }}"
-                class="btn btn-sm btn-warning"><span class="fa fa-paper-plane"></span></a>
+        <a title="Mail Send" href="{{ route('payslip.send', [$employee->id, $payslip->salary_month]) }}" class="btn btn-sm btn-warning"><span class="fa fa-paper-plane"></span></a>
         @endif
     </div>
-    <div class="invoice" id="printableArea">
+    <!-- <div class="invoice" id="printableArea">
         <div class="row">
             <div class="col-form-label">
                 <div class="invoice-number">
@@ -257,6 +267,354 @@
             </div>
         </div>
 
+    </div> -->
+
+    <div class="px-8 py-4" id="printableArea">
+        <div class="text-left mb-4">
+            <h3>REPUBIQUE DE DJIBOUTI</h3>
+            <h3>MINISTERE DE L'EQUIPEMENT ET DES TRANSPORTS</h3>
+            <h3>DIRECTION DE LA GARDE-CÔTES</h3>
+            <h3>SERVICE SOLDE</h3>
+        </div>
+
+        <div class="text-center">
+            <h1 class="text-xl font-bold my-2">
+                <span class="border-4 border-black py-1 px-6">BULLETIN DE PAIE</span>
+            </h1>
+            <h3 class="mb-2">MOIS DE MAI 2023</h3>
+        </div>
+        <div class="border-t-2 border-b-2 border-black py-2 px-4">
+            <table class="w-full">
+                <tr>
+                    <td>Matricule: &nbsp; {{ $employee->matricule }}</td>
+                    <td>Status: &nbsp; Fonctionnaire</td>
+                </tr>
+                <tr>
+                    <td>Nom: &nbsp; {{ $employee->name }}</td>
+                    <td>Indice: &nbsp; {{ $employee->indice }}</td>
+                </tr>
+                <tr>
+                    <td>Administration: &nbsp; MINISTERE DE L'EQUIPEMENT</td>
+                    <td>Echelle: &nbsp; {{ $employee->echelle }}</td>
+                </tr>
+                <tr>
+                    <td>Service: &nbsp; DIRECTION DE LA GARDE-CÔTES</td>
+                    <td>Grade: &nbsp; {{ $employee->grade }}</td>
+                </tr>
+                <tr>
+                    <td>N° Compte: &nbsp; {{ $employee->account_number }}</td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        @php
+            $allowances = [];
+            $deductions = [];
+            $loans = [];
+            $otherPayments = [];
+        @endphp
+
+        @foreach ($payslipDetail['earning']['otherPayment'] as $otherPayment)
+            @php
+                $otherpay = json_decode($otherPayment->other_payment);
+            @endphp
+            @foreach ($otherpay as $op)
+                @php array_push($otherPayments, ['title' => $op->title, 'amount' => \Auth::user()->priceFormat($op->amount)]) @endphp
+            @endforeach
+        @endforeach
+
+        @foreach ($payslipDetail['deduction']['loan'] as $loan)
+            @php
+                $loan = json_decode($loan->loan);
+            @endphp
+            @foreach ($loan as $emploanss)
+                @php array_push($loans, ['title' => $emploanss->title, 'amount' => \Auth::user()->priceFormat($emploanss->amount)]) @endphp
+            @endforeach
+        @endforeach
+
+        @foreach ($payslipDetail['deduction']['deduction'] as $deduction)
+            @php
+                $deduction = json_decode($deduction->saturation_deduction);
+            @endphp
+            @foreach ($deduction as $saturationdeduc)
+                @php array_push($deductions, ['title' => $saturationdeduc->title, 'amount' => \Auth::user()->priceFormat($saturationdeduc->amount)]) @endphp
+            @endforeach
+        @endforeach
+        
+        @foreach ($payslipDetail['earning']['allowance'] as $allowance)
+            @php
+                $allowance = json_decode($allowance->allowance);
+            @endphp
+            @foreach ($allowance as $all)
+                @php array_push($allowances, ['title' => $all->title, 'amount' => \Auth::user()->priceFormat($all->amount)]) @endphp
+            @endforeach
+        @endforeach
+
+        @foreach ( $otherPayments as $otherPa)
+            {{ $otherPa['title'] }}
+        @endforeach
+        <div class="p-4 mb-4">
+            <h3 class="mb-2">
+                <span class="border p-1 border-2 border-black px-4 mr-8">TRAITEMENT DE LA SOLDE</span>
+                <span>Solde Base: &nbsp; {{ \Auth::user()->priceFormat($employee->salary) }}</span>
+            </h3>
+
+            <table class="w-full">
+                <tr class="align-top">
+                    <td class="pb-2">
+                        <h3 class="my-4">
+                            <span class="border p-1 border-2 border-black mr-8 px-4">INDEMNITES</span>
+                        </h3>
+                        <table class="w-[300px]">
+                            <tr>
+                                <td>Ind.C.Militaire:</td>
+                                <td>
+                                    @foreach ( $allowances as $allowan)
+                                        @if ($allowan['title'] == 'Mission Special')
+                                            {{ $allowan['amount'] }}
+                                        @endif
+                                    @endforeach
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Ind.S.Police:</td>
+                                <td>
+                                    @foreach ( $allowances as $allowan)
+                                        @if ($allowan['title'] == 'Sujet Police')
+                                            {{ $allowan['amount'] }}
+                                        @endif
+                                    @endforeach
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Mensuelle_RespPart:</td>
+                                <td>
+                                @foreach ( $allowances as $allowan)
+                                        @if ($allowan['title'] == 'Mensuelle RespPart')
+                                            {{ $allowan['amount'] }}
+                                        @endif
+                                    @endforeach
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Pharmacie:</td>
+                                <td>0</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="text-right pb-2">
+                        <h3 class="my-4">
+                            <span class="border p-1 border-2 border-black mr-8 px-4">RETENUS</span>
+                        </h3>
+                        <table class="ml-auto w-[300px]">
+                            <tr>
+                                <td>Ret Log:</td>
+                                <td>
+                                    @foreach ( $deductions as $deduct)
+                                        @if ($deduct['title'] == 'Ret logem')
+                                            {{ $deduct['amount'] }}
+                                        @endif
+                                    @endforeach                                       
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Ret Subv:</td>
+                                <td>                                    
+                                    @foreach ( $deductions as $deduct)
+                                        @if ($deduct['title'] == 'Ret Sub')
+                                            {{ $deduct['amount'] }}
+                                        @endif
+                                    @endforeach 
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Ret Foyer:</td>
+                                <td>                                    
+                                    @foreach ( $deductions as $deduct)
+                                        @if ($deduct['title'] == 'Ret foyer')
+                                            {{ $deduct['amount'] }}
+                                        @endif
+                                    @endforeach                                    
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Ret Collecte:</td>
+                                <td>                                    
+                                    @foreach ( $deductions as $deduct)
+                                        @if ($deduct['title'] == 'RET COLLECT')
+                                            {{ $deduct['amount'] }}
+                                        @endif
+                                    @endforeach                                      
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><mark>Ret Caisse Social:</mark></td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>Ret Fond Habitat:</td>
+                                <td>                                                                        
+                                    @foreach ( $deductions as $deduct)
+                                        @if ($deduct['title'] == 'FONT HABITAT')
+                                            {{ $deduct['amount'] }}
+                                        @endif
+                                    @endforeach 
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Ret Collect Medecin:</td>
+                                <td>
+                                    @foreach ( $deductions as $deduct)
+                                        @if ($deduct['title'] == 'Ret Medical')
+                                            {{ $deduct['amount'] }}
+                                        @endif
+                                    @endforeach 
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><mark>Ret Chebeleye:</mark></td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>Ret Popote:</td>
+                                <td>
+                                    @foreach ( $deductions as $deduct)
+                                        @if ($deduct['title'] == 'RET POPOTE')
+                                            {{ $deduct['amount'] }}
+                                        @endif
+                                    @endforeach 
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Ret Waqf:</td>
+                                <td>
+                                    @foreach ( $deductions as $deduct)
+                                        @if ($deduct['title'] == 'Ret Waqf')
+                                            {{ $deduct['amount'] }}
+                                        @endif
+                                    @endforeach
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Ret Al-Gamil:</td>
+                                <td>
+                                    @foreach ( $loans as $loa)
+                                        @if ($loa['title'] == 'Algamil')
+                                            {{ $loa['amount'] }}
+                                        @endif
+                                    @endforeach 
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr class="align-top">
+                    <td class="pt-2 pb-2">
+                        <h3 class="mb-4">
+                            <span class="border p-1 border-2 border-black mr-8 px-4">AUTRES AVANTAGES</span>
+                        </h3>
+                        <table class="w-[300px]">
+                            <tr>
+                                <td>Rap Autre:</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>Alloc Eau:</td>
+                                <td>
+                                    @foreach ( $otherPayments as $otpay)
+                                        @if ($otpay['title'] == 'All,eau')
+                                            {{ $otpay['amount'] }}
+                                        @endif
+                                    @endforeach
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>PFranc:</td>
+                                <td>
+                                    @foreach ( $otherPayments as $otpay)
+                                        @if ($otpay['title'] == 'PFranc')
+                                            {{ $otpay['amount'] }}
+                                        @endif
+                                    @endforeach
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="text-right pt-2 pb-2">
+                        <h3 class="mb-4">
+                            <span class="border p-1 border-2 border-black mr-8 px-4">COTISATIONS</span>
+                        </h3>
+                        <table class="ml-auto w-[300px]">
+                            <tr>
+                                <td>CNR:</td>
+                                <td>
+                                    @foreach ( $deductions as $deduct)
+                                        @if ($deduct['title'] == 'CNR')
+                                            {{ $deduct['amount'] }}
+                                        @endif
+                                    @endforeach
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>CMR:</td>
+                                <td>0</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr class="align-top">
+                    <td class="pt-2">
+                        <h3 class="mt-2 mb-4">
+                            <span class="border p-1 border-2 border-black mr-8 px-4">SALAIRE NET A PAYER</span>
+                        </h3>
+                        <table class="w-[300px]">
+                            <tr>
+                                <td>Salaire Net:</td>
+                                <td>{{ \Auth::user()->priceFormat($payslip->net_payble) }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="text-right pt-2">
+                        <h3 class="mt-2 mb-4">
+                            <span class="border p-1 border-2 border-black mr-8 px-4">CONTRIBUTION IMPOSITION</span>
+                        </h3>
+                        <table class="ml-auto w-[300px]">
+                            <tr>
+                                <td>Abatt:</td>
+                                <td>
+                                    @foreach ( $deductions as $deduct)
+                                        @if ($deduct['title'] == 'Abatt')
+                                            {{ $deduct['amount'] }}
+                                        @endif
+                                    @endforeach
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Mont Imp:</td>
+                                <td>
+                                    @foreach ( $deductions as $deduct)
+                                        @if ($deduct['title'] == 'Mont Impôt')
+                                            {{ $deduct['amount'] }}
+                                        @endif
+                                    @endforeach
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Impôt:</td>
+                                <td>
+                                    @foreach ( $deductions as $deduct)
+                                        @if ($deduct['title'] == 'Ret Impot')
+                                            {{ $deduct['amount'] }}
+                                        @endif
+                                    @endforeach                                    
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
 </div>
 
