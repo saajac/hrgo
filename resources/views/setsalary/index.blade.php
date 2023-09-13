@@ -21,7 +21,7 @@
                             <tr>
                                 <th>{{ __('Employee Id') }}</th>
                                 <th>{{ __('Name') }}</th>
-                                <th>{{ __('Payroll Type') }}</th>
+                                <!-- <th>{{ __('Payroll Type') }}</th> -->
                                 <th>{{ __('Salary') }}</th>
                                 <th>{{ __('Net Salary') }}</th>
                                 <th width="200px">{{ __('Action') }}</th>
@@ -37,7 +37,7 @@
                                         </a>
                                     </td>
                                     <td>{{ $employee->name }}</td>
-                                    <td>{{ $employee->salary_type() }}</td>
+                                    <!-- <td>{{ $employee->salary_type() }}</td> -->
                                     <td>{{ \Auth::user()->priceFormat($employee->salary) }}</td>
                                     <td>{{ !empty($employee->get_net_salary()) ? \Auth::user()->priceFormat($employee->get_net_salary()) : '' }}
                                     </td>

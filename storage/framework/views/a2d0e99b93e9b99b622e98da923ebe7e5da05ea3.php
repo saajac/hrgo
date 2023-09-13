@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-md-12 mb-6">
             <label for="file" class="form-label">Download sample product CSV file</label>
-            <a href="<?php echo e(asset(Storage::url('uploads/sample')) . '/sample-employee.csv'); ?>"
+            <a href="<?php echo e(asset(Storage::url('uploads/sample')) . '/new-sample-employee.csv'); ?>"
                 class="btn btn-sm btn-primary rounded">
                 <i class="ti ti-download"></i> <?php echo e(__('Download')); ?>
 

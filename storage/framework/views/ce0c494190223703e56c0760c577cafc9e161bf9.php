@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('page-title'); ?>
     <?php echo e(__('Create Employee')); ?>
 
@@ -59,7 +57,7 @@
                                     <div class="form-group">
                                         <?php echo Form::label('gender', __('Gender'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
                                         <div class="d-flex radio-check">
-                                            <div class="custom-control custom-radio custom-control-inline">
+                                            <div class="custom-control custom-radio custom-control-inline" style="margin-right: 15px;">
                                                 <input type="radio" id="g_male" value="Male" name="gender"
                                                     class="form-check-input">
                                                 <label class="form-check-label " for="g_male"><?php echo e(__('Male')); ?></label>
@@ -72,7 +70,30 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <?php echo Form::label('gender', __('Etat Civil'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
+                                        <div class="d-flex radio-check">
+                                            <div class="custom-control custom-radio custom-control-inline" style="margin-right: 15px;">
+                                                <input type="radio" id="single" value="Célibataire" name="etatcivil"
+                                                    class="form-check-input">
+                                                <label class="form-check-label " for="single"><?php echo e(__('Célibataire')); ?></label>
+                                            </div>
+                                            <div class="custom-control custom-radio ms-1 custom-control-inline">
+                                                <input type="radio" id="maried" value="Marié(e)" name="etatcivil"
+                                                    class="form-check-input">
+                                                <label class="form-check-label " for="maried"><?php echo e(__('Marié(e)')); ?></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="form-group col-md-6">
+                                    <?php echo Form::label('nbrenfant', __('Nombre d\'enfants'), ['class' => 'form-label']); ?>
+
+                                    <?php echo Form::number('nbrenfant', old('nbrenfant'), ['class' => 'form-control', 'placeholder' => 'Saisir le nombre d\'enfant']); ?>
+
+                                </div>
+                                <!-- <div class="form-group col-md-6">
                                     <?php echo Form::label('email', __('Email'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
                                     <?php echo Form::email('email', old('email'), [
                                         'class' => 'form-control',
@@ -87,7 +108,7 @@
                                         'placeholder' => 'Enter employee Password',
                                     ]); ?>
 
-                                </div>
+                                </div> -->
                             </div>
                             <div class="form-group">
                                 <?php echo Form::label('address', __('Address'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
@@ -126,7 +147,7 @@
 
                                 </div>
 
-                                <div class="form-group col-md-6">
+                                <!-- <div class="form-group col-md-6">
                                     <?php echo Form::label('grade', __('Grade'), ['class' => 'form-label']); ?><span class="text-danger pl-1">*</span>
                                     <?php echo Form::text('grade', old('grade'), [
                                         'class' => 'form-control',
@@ -134,6 +155,14 @@
                                         'placeholder' => 'Saisir le grade',
                                     ]); ?>
 
+                                </div> -->
+
+                                <div class="form-group col-md-6">
+                                    <?php echo e(Form::label('branch_id', __('Grade'), ['class' => 'form-label'])); ?><span class="text-danger pl-1">*</span>
+                                    <div class="form-icon-user">
+                                        <?php echo e(Form::select('grade_id', $grades, null, ['class' => 'form-control branch_id', 'required' => 'required', 'placeholder' => 'Choisir le grade', 'id' => 'grade_id'])); ?>
+
+                                    </div>
                                 </div>
 
                                 <div class="form-group col-md-6">
@@ -157,9 +186,10 @@
                                 </div>
 
                                 <div class="form-group col-md-6">
-                                    <?php echo e(Form::label('branch_id', __('Select Branch'), ['class' => 'form-label'])); ?><span class="text-danger pl-1">*</span>
+                                    <?php echo e(Form::label('branch_id', __('Select Branch'), ['class' => 'form-label'])); ?>
+
                                     <div class="form-icon-user">
-                                        <?php echo e(Form::select('branch_id', $branches, null, ['class' => 'form-control branch_id', 'required' => 'required', 'placeholder' => 'Select Branch', 'id' => 'branch_id'])); ?>
+                                        <?php echo e(Form::select('branch_id', $branches, null, ['class' => 'form-control branch_id', 'placeholder' => 'Select Branch', 'id' => 'branch_id'])); ?>
 
                                     </div>
                                 </div>
@@ -168,7 +198,8 @@
                                     
 
                                     <div class="form-icon-user" id="department_id">
-                                        <?php echo e(Form::label('department_id', __('Department'), ['class' => 'form-label'])); ?><span class="text-danger pl-1">*</span>
+                                        <?php echo e(Form::label('department_id', __('Department'), ['class' => 'form-label'])); ?>
+
                                         <select class="form-control department_id" name="department_id" id="department_id"
                                             placeholder="Select Department">
                                         </select>
@@ -303,12 +334,20 @@ unset($__errorArgs, $__bag); ?> "
 
 
                                 </div>
-                                <div class="form-group col-md-6">
+                                <!-- <div class="form-group col-md-6">
                                     <?php echo Form::label('bank_name', __('Bank Name'), ['class' => 'form-label']); ?>
 
                                     <?php echo Form::text('bank_name', old('bank_name'), ['class' => 'form-control', 'placeholder' => 'Enter Bank Name']); ?>
 
 
+                                </div> -->
+                                <div class="form-group col-md-6">
+                                    <?php echo e(Form::label('bank_name', __('Bank Name'), ['class' => 'form-label'])); ?>
+
+                                    <div class="form-icon-user">
+                                        <?php echo e(Form::select('bank_name', $banks, null, ['class' => 'form-control bank_name', 'placeholder' => __('Bank Name'), 'id' => 'bank_name'])); ?>
+
+                                    </div>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <?php echo Form::label('bank_identifier_code', __('Bank Identifier Code'), ['class' => 'form-label']); ?>
@@ -426,7 +465,7 @@ unset($__errorArgs, $__bag); ?> "
                 //                         placeholder="Select Designation" >
                 //                         </select>`;
                     var emp_selct = `<select class="form-control designation_id" name="designation_id"
-                                                 placeholder="Select Designation" required>
+                                                 placeholder="Select Designation">
                                             </select>`;
                     $('.designation_div').html(emp_selct);
 

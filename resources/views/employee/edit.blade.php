@@ -64,6 +64,29 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {!! Form::label('gender', __('Etat Civil'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
+                                        <div class="d-flex radio-check">
+                                            <div class="custom-control custom-radio custom-control-inline" style="margin-right: 15px;">
+                                                <input type="radio" id="single" value="Célibataire" name="etatcivil"
+                                                    class="form-check-input"
+                                                    {{ $employee->etatcivil == 'Célibataire' ? 'checked' : '' }}>
+                                                <label class="form-check-label " for="single">{{ __('Célibataire') }}</label>
+                                            </div>
+                                            <div class="custom-control custom-radio ms-1 custom-control-inline">
+                                                <input type="radio" id="maried" value="Marié(e)" name="etatcivil"
+                                                    class="form-check-input"
+                                                    {{ $employee->etatcivil == 'Célibataire' ? '' : 'checked' }}>
+                                                <label class="form-check-label " for="maried">{{ __('Marié(e)') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    {!! Form::label('nbrenfant', __('Nombre d\'enfants'), ['class' => 'form-label']) !!}
+                                    {!! Form::number('nbrenfant', old('nbrenfant'), ['class' => 'form-control', 'placeholder' => 'Saisir le nombre d\'enfant']) !!}
+                                </div>
                             </div>
                             <div class="form-group">
                                 {!! Form::label('address', __('Address'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
@@ -112,7 +135,7 @@
                                         {!! Form::label('echelle', __('Echelle'), ['class' => 'form-label']) !!}<span class="text-danger pl-1">*</span>
                                         {!! Form::text('echelle', $employee->echelle, ['class' => 'form-control', 'required' => 'required']) !!}
                                     </div>
-                                    <div class="form-group col-md-6">
+                                    <!-- <div class="form-group col-md-6">
                                         {{ Form::label('branch_id', __('Branch'), ['class' => 'form-label']) }}<span class="text-danger pl-1">*</span>
                                         {{ Form::select('branch_id', $branches, null, ['class' => 'form-control ', 'placeholder' => 'Select Branch']) }}
                                     </div>
@@ -138,7 +161,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <div class="form-group">
                                         {!! Form::label('company_doj', 'Company Date Of Joining', ['class' => 'form-label']) !!}
                                         {!! Form::date('company_doj', null, [
@@ -160,7 +183,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <!-- <div class="col-md-6">
                                             <div class="info">
                                                 <strong>{{ __('Branch') }}</strong>
                                                 <span>{{ !empty($employee->branch) ? $employee->branch->name : '' }}</span>
@@ -177,7 +200,7 @@
                                                 <strong>{{ __('Designation') }}</strong>
                                                 <span>{{ !empty($employee->designation) ? $employee->designation->name : '' }}</span>
                                             </div>
-                                        </div>
+                                        </div> -->
                                         <div class="col-md-6">
                                             <div class="info">
                                                 <strong>{{ __('Date Of Joining') }}</strong>
@@ -267,23 +290,28 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="form-group col-md-6">
+                                    <!-- <div class="form-group col-md-6">
                                         {!! Form::label('account_holder_name', __('Account Holder Name'), ['class' => 'form-label']) !!}
                                         {!! Form::text('account_holder_name', null, ['class' => 'form-control']) !!}
 
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        {!! Form::label('account_number', __('Account Number'), ['class' => 'form-label']) !!}
-                                        {!! Form::number('account_number', null, ['class' => 'form-control']) !!}
+                                    </div> -->
+                                    <div class="form-group">
+                                        {{ Form::label('account_number', __('Account Number'), ['class' => 'form-label']) }}
+                                        {{ Form::number('account_number', null, ['class' => 'form-control']) }}
 
                                     </div>
 
-                                    <div class="form-group col-md-6">
+                                    <!-- <div class="form-group">
                                         {{ Form::label('bank_name', __('Bank Name'), ['class' => 'form-label']) }}<span class="text-danger pl-1">*</span>
-                                        {{ Form::select('bank_name', $banks, null, ['class' => 'form-control ', 'placeholder' => 'Selectionner une banque']) }}
+                                        {{ Form::select('bank_name', $banks, $banks[$current_bank], ['class' => 'form-control ', 'placeholder' => 'Selectionner une banque']) }}
+                                    </div> -->
+
+                                    <div class="form-group">
+                                        {{ Form::label('bank_name', __('Bank Name'), ['class' => 'form-label']) }}
+                                        {{ Form::select('bank_name', $banks, $banks[$employee->bank_name], ['class' => 'form-control ', 'placeholder' => 'Selectionner une banque']) }}
                                     </div>
 
-                                    <div class="form-group col-md-6">
+                                    <!-- <div class="form-group col-md-6">
                                         {!! Form::label('bank_identifier_code', __('Bank Identifier Code'), ['class' => 'form-label']) !!}
                                         {!! Form::text('bank_identifier_code', null, ['class' => 'form-control']) !!}
                                     </div>
@@ -294,7 +322,7 @@
                                     <div class="form-group col-md-6">
                                         {!! Form::label('tax_payer_id', __('Tax Payer Id'), ['class' => 'form-label']) !!}
                                         {!! Form::text('tax_payer_id', null, ['class' => 'form-control']) !!}
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
@@ -335,12 +363,12 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <!-- <div class="col-md-6">
                                             <div class="info">
                                                 <strong>{{ __('Account Holder Name') }}</strong>
                                                 <span>{{ $employee->account_holder_name }}</span>
                                             </div>
-                                        </div>
+                                        </div> -->
                                         <div class="col-md-6">
                                             <div class="info font-style">
                                                 <strong>{{ __('Account Number') }}</strong>
@@ -353,7 +381,7 @@
                                                 <span>{{ $employee->bank_name }}</span>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <!-- <div class="col-md-6">
                                             <div class="info">
                                                 <strong>{{ __('Bank Identifier Code') }}</strong>
                                                 <span>{{ $employee->bank_identifier_code }}</span>
@@ -364,7 +392,7 @@
                                                 <strong>{{ __('Branch Location') }}</strong>
                                                 <span>{{ $employee->branch_location }}</span>
                                             </div>
-                                        </div>
+                                        </div> -->
                                         <div class="col-md-6">
                                             <div class="info">
                                                 <strong>{{ __('Tax Payer Id') }}</strong>

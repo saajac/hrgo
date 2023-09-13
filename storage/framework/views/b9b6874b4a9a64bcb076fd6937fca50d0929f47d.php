@@ -354,11 +354,6 @@ $data = [];
                 <?php array_push($allowances, ['title' => $all->title, 'amount' => \Auth::user()->priceFormat($all->amount)]) ?>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-        <?php $__currentLoopData = $otherPayments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $otherPa): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <?php echo e($otherPa['title']); ?>
-
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         <div class="p-4 mb-4">
             <h3 class="mb-2">
                 <span class="border p-1 border-2 border-black px-4 mr-8">TRAITEMENT DE LA SOLDE</span>

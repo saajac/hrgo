@@ -170,7 +170,7 @@
                                     ]) !!}
                                 </div>
 
-                                <div class="form-group col-md-6">
+                                <!-- <div class="form-group col-md-6">
                                     {{ Form::label('branch_id', __('Select Branch'), ['class' => 'form-label']) }}
                                     <div class="form-icon-user">
                                         {{ Form::select('branch_id', $branches, null, ['class' => 'form-control branch_id', 'placeholder' => 'Select Branch', 'id' => 'branch_id']) }}
@@ -202,7 +202,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                                 <div class="form-group ">
                                     {!! Form::label('company_doj', __('Company Date Of Joining'), ['class' => 'form-label']) !!}
                                     {{ Form::date('company_doj', null, ['class' => 'form-control current_date', 'required' => 'required', 'autocomplete' => 'off', 'placeholder' => 'Select Company Date Of Joining']) }}
@@ -280,15 +280,15 @@
                         </div>
                         <div class="card-body employee-detail-create-body">
                             <div class="row">
-                                <div class="form-group col-md-6">
+                                <!-- <div class="form-group col-md-6">
                                     {!! Form::label('account_holder_name', __('Account Holder Name'), ['class' => 'form-label']) !!}
                                     {!! Form::text('account_holder_name', old('account_holder_name'), [
                                         'class' => 'form-control',
                                         'placeholder' => 'Enter Account Holder Name',
                                     ]) !!}
 
-                                </div>
-                                <div class="form-group col-md-6">
+                                </div> -->
+                                <div class="form-group">
                                     {!! Form::label('account_number', __('Account Number'), ['class' => 'form-label']) !!}
                                     {!! Form::number('account_number', old('account_number'), [
                                         'class' => 'form-control',
@@ -301,13 +301,13 @@
                                     {!! Form::text('bank_name', old('bank_name'), ['class' => 'form-control', 'placeholder' => 'Enter Bank Name']) !!}
 
                                 </div> -->
-                                <div class="form-group col-md-6">
+                                <div class="form-group">
                                     {{ Form::label('bank_name', __('Bank Name'), ['class' => 'form-label']) }}
                                     <div class="form-icon-user">
                                         {{ Form::select('bank_name', $banks, null, ['class' => 'form-control bank_name', 'placeholder' => __('Bank Name'), 'id' => 'bank_name']) }}
                                     </div>
                                 </div>
-                                <div class="form-group col-md-6">
+                                <!-- <div class="form-group col-md-6">
                                     {!! Form::label('bank_identifier_code', __('Bank Identifier Code'), ['class' => 'form-label']) !!}
                                     {!! Form::text('bank_identifier_code', old('bank_identifier_code'), [
                                         'class' => 'form-control',
@@ -327,7 +327,7 @@
                                         'class' => 'form-control',
                                         'placeholder' => 'Enter Tax Payer Id',
                                     ]) !!}
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>

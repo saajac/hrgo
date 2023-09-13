@@ -41,10 +41,10 @@
                             <tr>
                                 <th>{{ __('Employee ID') }}</th>
                                 <th>{{ __('Name') }}</th>
-                                <th>{{ __('Email') }}</th>
+                                <th>{{ __('Grade') }}</th>
+                                <th>{{ __('Matricule') }}</th>
                                 <th>{{ __('Branch') }}</th>
                                 <th>{{ __('Department') }}</th>
-                                <th>{{ __('Designation') }}</th>
                                 <th>{{ __('Date Of Joining') }}</th>
                                 @if (Gate::check('Edit Employee') || Gate::check('Delete Employee'))
                                     <th width="200px">{{ __('Action') }}</th>
@@ -63,15 +63,13 @@
                                         @endcan
                                     </td>
                                     <td>{{ $employee->name }}</td>
-                                    <td>{{ $employee->email }}</td>
+                                    <td>{{ $employee->grade }}</td>
+                                    <td>{{ $employee->matricule }}</td>
                                     <td>
                                         {{ !empty(\Auth::user()->getBranch($employee->branch_id)) ? \Auth::user()->getBranch($employee->branch_id)->name : '' }}
                                     </td>
                                     <td>
                                         {{ !empty(\Auth::user()->getDepartment($employee->department_id)) ? \Auth::user()->getDepartment($employee->department_id)->name : '' }}
-                                    </td>
-                                    <td>
-                                        {{ !empty(\Auth::user()->getDesignation($employee->designation_id)) ? \Auth::user()->getDesignation($employee->designation_id)->name : '' }}
                                     </td>
                                     <td>
                                         {{ \Auth::user()->dateFormat($employee->company_doj) }}

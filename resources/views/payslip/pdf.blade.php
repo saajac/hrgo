@@ -350,10 +350,6 @@ $data = [];
                 @php array_push($allowances, ['title' => $all->title, 'amount' => \Auth::user()->priceFormat($all->amount)]) @endphp
             @endforeach
         @endforeach
-
-        @foreach ( $otherPayments as $otherPa)
-            {{ $otherPa['title'] }}
-        @endforeach
         <div class="p-4 mb-4">
             <h3 class="mb-2">
                 <span class="border p-1 border-2 border-black px-4 mr-8">TRAITEMENT DE LA SOLDE</span>
@@ -390,7 +386,7 @@ $data = [];
                             <tr>
                                 <td>Mensuelle_RespPart:</td>
                                 <td>
-                                @foreach ( $allowances as $allowan)
+                                    @foreach ( $allowances as $allowan)
                                         @if ($allowan['title'] == 'Mensuelle RespPart')
                                             {{ $allowan['amount'] }}
                                         @endif
@@ -398,8 +394,14 @@ $data = [];
                                 </td>
                             </tr>
                             <tr>
-                                <td>Pharmacie:</td>
-                                <td>0</td>
+                                <td>Ind. Medecin:</td>
+                                <td>
+                                    @foreach ( $allowances as $allowan)
+                                        @if ($allowan['title'] == 'Indemnite Medecin')
+                                            {{ $allowan['amount'] }}
+                                        @endif
+                                    @endforeach
+                                </td>
                             </tr>
                         </table>
                     </td>

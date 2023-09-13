@@ -101,7 +101,7 @@
                                 @if (\Auth::user()->type != 'employee')
                                     <th>{{ __('Name') }}</th>
                                 @endif
-                                <th>{{ __('Payroll Type') }}</th>
+                                <!-- <th>{{ __('Payroll Type') }}</th> -->
                                 <th>{{ __('Salary') }}</th>
                                 <th>{{ __('Net Salary') }}</th>
                                 <th>{{ __('Status') }}</th>
@@ -295,7 +295,7 @@
                                         '<td> <a class="btn btn-outline-primary" href="' +
                                         url_employee + '">' + valueOfElement[1] + '</a></td> ' +
                                         '<td>' + valueOfElement[2] + '</td> ' +
-                                        '<td>' + valueOfElement[3] + '</td>' +
+                                        /*'<td>' + valueOfElement[3] + '</td>' +*/
                                         '<td>' + valueOfElement[4] + '</td>' +
                                         '<td>' + valueOfElement[5] + '</td>' +
                                         '<td>' + status + '</td>' +

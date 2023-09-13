@@ -272,6 +272,12 @@ class EmployeeController extends Controller
             // Sujet Police
             $sujpol = \DB::table('tab_defaults')->where('name', 'SujetPolice')->first()->amount_1;
 
+            // Prime
+            $prime = 0;
+
+             // Ind Medecin
+             $indMedecin = 0;
+
             // MensuelleRespPart et Mission Special
             /* $menRP = in_array($request->grade, $officers) == false ? \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_2; */
 
@@ -290,7 +296,7 @@ class EmployeeController extends Controller
             }
 
             // Salaire et allocations
-            $salary_allowances = $whole_indices->salary + $sujpol + $menRP + $mSpe + 0 + 0;
+            $salary_allowances = $whole_indices->salary + $sujpol + $menRP + $mSpe + $prime + $indMedecin;
 
             // CNR
             $db_cnr = intval(\DB::table('tab_defaults')->where('name', 'CNR')->first()->amount_1);
@@ -298,7 +304,7 @@ class EmployeeController extends Controller
 
             // Abatt
             $db_abatt = intval(\DB::table('tab_defaults')->where('name', 'Abatt')->first()->amount_1);
-            $abatt = round(floatval((($whole_indices->salary + $sujpol + $menRP + $mSpe) / 100) * $db_abatt));
+            $abatt = ($whole_indices->salary + $sujpol + $menRP + $mSpe) >= 80000 ? round(floatval((($whole_indices->salary + $sujpol + $menRP + $mSpe) / 100) * $db_abatt)) : 0;
 
             // Montant impôt
             $montimpot = $salary_allowances - $cnr - $abatt;
@@ -451,7 +457,7 @@ class EmployeeController extends Controller
                         $new_deduction                   = new SaturationDeduction();
                         $new_deduction->employee_id      = $employee->id;
                         $new_deduction->title            = $deduction->name;
-                        $new_deduction->deduction_option      = '18';
+                        $new_deduction->deduction_option      = '3';
                         $new_deduction->amount           = $montimpot;
                         $new_deduction->type           = 'fixed';
                         $new_deduction->created_by       = \Auth::user()->creatorId();
@@ -647,7 +653,9 @@ class EmployeeController extends Controller
                 'BOA' => 'BOA'
             ];
 
-            return view('employee.edit', compact('employee', 'employeesId', 'grades', 'banks', 'branches', 'departments', 'designations', 'documents'));
+            $current_bank = $employee->bank_name;
+
+            return view('employee.edit', compact('employee', 'employeesId', 'grades', 'banks', 'current_bank', 'branches', 'departments', 'designations', 'documents'));
         } else {
             return redirect()->back()->with('error', __('Permission denied.'));
         }
@@ -742,7 +750,13 @@ class EmployeeController extends Controller
             /* ------ Calcule des montants ------ */
 
             // Sujet Police
-            $sujpol = \DB::table('tab_defaults')->where('name', 'SujetPolice')->first()->amount_1;
+            $sujpol = \DB::table('tab_defaults')->where('name', 'SujetPolice')->first()->amount_1;            
+
+            // Prime
+            $prime = \DB::table('allowances')->where('employee_id', $employee['employee_id'])->where('allowance_option', 5)->first()->amount;
+
+             // Ind Medecin
+             $indMedecin = \DB::table('allowances')->where('employee_id', $employee['employee_id'])->where('allowance_option', 6)->first()->amount;
 
             // MensuelleRespPart et Mission Special
             /* $menRP = in_array($request->grade, $officers) == false ? \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_2; */
@@ -756,13 +770,13 @@ class EmployeeController extends Controller
             /*  $mSpe = in_array($request->grade, $officers) == false ? \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_2; */
 
             if (in_array($request->grade, $officers)) {
-                $mSpe = \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_1;
-            } else {
                 $mSpe = \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_2;
+            } else {
+                $mSpe = \DB::table('tab_defaults')->where('name', 'Mission Special')->first()->amount_1;
             }
 
             // Salaire et allocations
-            $salary_allowances = $whole_indices->salary + $sujpol + $menRP + $mSpe + 0 + 0;
+            $salary_allowances = $whole_indices->salary + $sujpol + $menRP + $mSpe + $prime + $indMedecin;
 
             // CNR
             $db_cnr = intval(\DB::table('tab_defaults')->where('name', 'CNR')->first()->amount_1);
@@ -788,14 +802,26 @@ class EmployeeController extends Controller
             SaturationDeduction::where('employee_id', $id)->where('deduction_option', 2)->update([
                 'amount' => $abatt
             ]);
-            SaturationDeduction::where('employee_id', $id)->where('deduction_option', 3)->update([
+            SaturationDeduction::where('employee_id', $id)->where('deduction_option', 4)->update([
                 'amount' => $retImp
             ]);
-            SaturationDeduction::where('employee_id', $id)->where('deduction_option', 5)->update([
+            SaturationDeduction::where('employee_id', $id)->where('deduction_option', 6)->update([
                 'amount' => $retMed
             ]);
-            SaturationDeduction::where('employee_id', $id)->where('deduction_option', 18)->update([
+            SaturationDeduction::where('employee_id', $id)->where('deduction_option', 3)->update([
                 'amount' => $montimpot
+            ]);
+
+            /* ------ Enregistrement d'autre paiement ------ */
+
+            $nbrenfant = isset($request['nbrenfant']) ? $request['nbrenfant'] : 0;
+
+            OtherPayment::where('employee_id', $id)->where('title', 'All,eau')->update([
+                'amount' => $request['etatcivil'] == 'Célibataire' ? \DB::table('tab_defaults')->where('name', 'All,eau')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'All,eau')->first()->amount_2
+            ]);
+
+            OtherPayment::where('employee_id', $id)->where('title', 'Press,Fam')->update([
+                'amount' => $request['etatcivil'] == 'Célibataire' ? 0 : 1400 * $nbrenfant
             ]);
 
             // Allocations
@@ -1105,6 +1131,12 @@ class EmployeeController extends Controller
             // Sujet Police
             $sujpol = \DB::table('tab_defaults')->where('name', 'SujetPolice')->first()->amount_1;
 
+            // Prime
+            $prime = \DB::table('allowances')->where('employee_id', $this->employeeNumber())->where('allowance_option', 5)->first()->amount;
+
+             // Ind Medecin
+             $indMedecin = \DB::table('allowances')->where('employee_id', $this->employeeNumber())->where('allowance_option', 6)->first()->amount;
+
             // MensuelleRespPart et Mission Special
             /* $menRP = in_array($request->grade, $officers) == false ? \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_1 : \DB::table('tab_defaults')->where('name', 'Mensuelle RespPart')->first()->amount_2; */
 
@@ -1123,7 +1155,7 @@ class EmployeeController extends Controller
             }
 
             // Salaire et allocations
-            $salary_allowances = $whole_indices->salary + $sujpol + $menRP + $mSpe + 0 + 0;
+            $salary_allowances = $whole_indices->salary + $sujpol + $menRP + $mSpe + $prime + $indMedecin;
 
             // CNR
             $db_cnr = intval(\DB::table('tab_defaults')->where('name', 'CNR')->first()->amount_1);

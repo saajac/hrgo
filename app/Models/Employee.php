@@ -141,9 +141,10 @@ class Employee extends Model
         // $advance_salary = $total_allowance + $total_commission - $total_loan - $total_saturation_deduction + $total_other_payment + $total_over_time;
 
         // New net salary calculation
-        $advance_salary = $montimp - $total_saturation_deduction - $total_loan + $total_other_payment;
+        // $advance_salary = $montimp - $total_saturation_deduction - $total_loan + $total_other_payment;
 
         $employee       = Employee::where('id', '=', $this->id)->first();
+        $advance_salary = $employee->salary + $total_allowance - $total_saturation_deduction - $total_loan + $total_other_payment;
 
         // $net_salary     = (!empty($employee->salary) ? $employee->salary : 0) + $advance_salary;
 

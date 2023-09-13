@@ -357,6 +357,7 @@
                                     <tbody>
                                         @foreach ($saturationdeductions as $saturationdeduction)
                                             <tr>
+                                                @if ($saturationdeduction->title != 'Mont Impôt')
                                                 <td>{{ !empty($saturationdeduction->employee()) ? $saturationdeduction->employee()->name : '' }}
                                                 </td>
                                                 <td>{{ !empty($saturationdeduction->deduction_option()) ? $saturationdeduction->deduction_option()->name : '' }}
@@ -399,6 +400,7 @@
                                                         @endcan
                                                     </span>
                                                 </td>
+                                                @endif
                                             </tr>
                                         @endforeach
                                     </tbody>
